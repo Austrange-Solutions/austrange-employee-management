@@ -14,17 +14,19 @@ export type TEmployee = Document & {
     state: string;
     country: string;
     zip: string;
-    dateOfBirth: Date;
+    dateOfBirth: Date | string; // Date can be stored as Date object or ISO string
     department: string;
     department_code: string;
     role?: string; // Optional field for role, if needed
     level: string;
     level_code: string;
     designation: string;
-    dateOfJoining: Date;
-    dateOfLeaving?: Date;
+    dateOfJoining: Date | string;
+    dateOfLeaving?: Date | string;
     status: string;
     profilePicture?: string;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
 }
 
 const employeeSchema = new mongoose.Schema<TEmployee>({

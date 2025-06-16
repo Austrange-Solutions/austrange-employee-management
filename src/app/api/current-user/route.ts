@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDataFromToken } from "../../../../helpers/getDataFromToken";
+import { getDataFromToken } from "@/helpers/getDataFromToken";
 import Admin from "@/models/admin.model";
 import Employee from "@/models/employee.model";
-import dbConnect from "../../../../db/dbConnect";
+import dbConnect from "@/db/dbConnect";
 
 export async function GET(request: NextRequest) {
     const token = await getDataFromToken(request);
