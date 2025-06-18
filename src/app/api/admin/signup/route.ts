@@ -1,11 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import Admin from "@/models/admin.model";
 import dbConnect from "@/db/dbConnect";
+import User from "@/models/user.model";
 
 export async function POST(request: NextRequest) {
     await dbConnect();
-    const { username, email, password, designation } = await request.json();
+    const { username,
+        firstName,
+        lastName,
+        password,
+        email,
+        phone,
+        role,
+        designation,
+        department,
+        department_code,
+        level,
+        level_code,
+        age,
+        dateOfBirth,
+        dateOfJoining,
+        address,
+        city,
+        state,
+        country,
+        zip,
+        bloodGroup } = await request.json();
     if (!username && !email) {
         return NextResponse.json({
             error: "Username and email are required"
@@ -18,31 +38,36 @@ export async function POST(request: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const admin = new Admin({
+
+    const newUser = await User.create({
         username,
+        firstName,
+        lastName,
         email,
-        password: hashedPassword,
-        role: "admin",
-        designation: designation || "Administrator"
+        phone,
+        designation,
+        department,
+        department_code,
+        level,
+        level_code,
+        age,
+        dateOfBirth,
+        dateOfJoining,
+        address,
+        city,
+        role,
+        state,
+        country,
+        zip,
+        bloodGroup,
+        password: hashedPassword
     })
 
-    await admin.save()
-
-    if (!admin) {
+    if (!newUser) {
         return NextResponse.json({
-            error: "Failed to create admin"
+            error: "Failed to create user"
         }, { status: 500 });
     }
 
-    return NextResponse.json({
-        message: "Admin created successfully",
-        admin: {
-            _id: admin._id,
-            username: admin.username,
-            email: admin.email,
-            role: admin.role,
-            designation: admin.designation
-        },
-        status: 201
-    })
+    return NextResponse.json({ message: "User created successfully", user: newUser }, { status: 201 });
 }

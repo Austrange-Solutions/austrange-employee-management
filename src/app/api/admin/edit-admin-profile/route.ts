@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
-import Admin from "@/models/admin.model";
+import User from "@/models/user.model";
 import dbConnect from "@/db/dbConnect";
 
 export async function PATCH(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function PATCH(request: NextRequest) {
 
         await dbConnect();
         
-        const admin = await Admin.findById(token._id);
+        const admin = await User.findById(token._id);
         if (!admin) {
             return NextResponse.json({ error: "Admin not found" }, { status: 404 });
         }

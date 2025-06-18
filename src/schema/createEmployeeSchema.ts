@@ -74,31 +74,17 @@ const createEmployeeSchema = z.object({
             const today = new Date();
             return joiningDate <= today;
         }, "Date of joining cannot be in the future"),
+    username: z.string()
+        .min(2, "Username must be at least 2 characters long")
+        .max(100, "Username must be less than 100 characters")
+        .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+    bloodGroup: z.string()
+        .min(1, "Blood group is required")
+        .regex(/^(A|B|AB|O)[+-]$/, "Blood group must be valid (e.g., A+, B-, AB+, O-)"),
     password: z.string()
         .min(6, "Password must be at least 6 characters long")
-        .max(100, "Password must be less than 100 characters")
-        .optional(),
-}).transform((data) => ({
-    ...data,
-    firstName: data.firstName.trim(),
-    lastName: data.lastName.trim(),
-    email: data.email.trim().toLowerCase(),
-    phone: data.phone.trim(),
-    age: data.age.trim(),
-    address: data.address?.trim() || "",
-    city: data.city?.trim() || "",
-    state: data.state?.trim() || "",
-    country: data.country?.trim() || "",
-    zip: data.zip?.trim() || "",
-    dateOfBirth: data.dateOfBirth.trim(),
-    department: data.department.trim(),
-    department_code: data.department_code.trim(),
-    level: data.level.trim(),
-    level_code: data.level_code.trim(),
-    designation: data.designation.trim(),
-    dateOfJoining: data.dateOfJoining.trim(),
-    password: data.password?.trim() || "",
-}))
+        .max(100, "Password must be less than 100 characters"),
+})
 
 export type CreateEmployeeFormData = z.infer<typeof createEmployeeSchema>
 export { createEmployeeSchema }

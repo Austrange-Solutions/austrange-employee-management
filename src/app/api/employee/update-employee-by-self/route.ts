@@ -1,50 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import dbConnect from "@/db/dbConnect";
-import Employee from "@/models/employee.model";
+import User from "@/models/user.model";
 
 export async function PATCH(request: NextRequest) {
     try {
-        const { firstName, lastName, email, phone, age } = await request.json();
+        const { firstName, lastName, email, phone, age, address, city, state, country, zip, designation } = await request.json();
         const token = await getDataFromToken(request);
         if (!token) {
             return NextResponse.json({
                 error: "Unauthorized access"
             }, { status: 401 });
         }
-        if (token.role !== "employee") {
-            return NextResponse.json({
-                error: "Only employees can update their own details"
-            }, { status: 403 });
-        }
 
-        if (!firstName || !lastName || !email || !phone || !age) {
+        // Both admin and employee can update their own details
+        if (!firstName || !lastName || !email || !phone) {
             return NextResponse.json({
-                error: "All fields are required"
+                error: "First name, last name, email, and phone are required"
             }, { status: 400 });
         }
 
         await dbConnect();
-        const employee = await Employee.findById(token._id);
-        if (!employee) {
+        const user = await User.findById(token._id);
+        if (!user) {
             return NextResponse.json({
-                error: "Employee not found"
+                error: "User not found"
             }, { status: 404 });
         }
 
-        employee.firstName = firstName;
-        employee.lastName = lastName;
-        employee.email = email;
-        employee.phone = phone;
-        employee.age = age;
-        await employee.save();
+        // Update user details
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.email = email;
+        user.phone = phone;
+        if (age) user.age = age;
+        if (address) user.address = address;
+        if (city) user.city = city;
+        if (state) user.state = state;
+        if (country) user.country = country;
+        if (zip) user.zip = zip;
+        if (designation) user.designation = designation;
+          await user.save();
+        
+        // Return user without password
+        const userObj = user.toObject();
+        const { password, ...userWithoutPassword } = userObj;
+        
         return NextResponse.json({
-            message: "Employee updated successfully",
-            employee
+            message: "Profile updated successfully",
+            user: userWithoutPassword
         });
     } catch (error) {
-        console.error("Error updating employee:", error);
-        return new Response(JSON.stringify({ error: "Failed to update employee" }), {
+        console.error("Error updating user profile:", error);
+        return new Response(JSON.stringify({ error: "Failed to update profile" }), {
             status: 500,
             headers: { "Content-Type": "application/json" }
         });

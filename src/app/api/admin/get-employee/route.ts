@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import Employee from "@/models/employee.model";
+import User from "@/models/user.model";
 import dbConnect from "@/db/dbConnect";
 
 export async function GET(request: NextRequest) {
@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
     try {
         await dbConnect();
 
-        const employee = await Employee.findById(employeeId).select("-password -__v");
+        const employee = await User.findById(employeeId).select("-password -__v");
+        
         if (!employee) {
             return new Response(JSON.stringify({ error: "Employee not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
         }

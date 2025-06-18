@@ -51,7 +51,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="space-y-3">
-                <Link href="/admin/signin" className="block">
+                <Link href="/signin" className="block">
                   <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3">
                     Sign In as Admin
                   </Button>
@@ -90,7 +90,7 @@ export default function Home() {
                   <span>Department Info</span>
                 </div>
               </div>
-              <Link href="/employee/signin" className="block">
+              <Link href="/signin" className="block">
                 <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3">
                   Sign In as Employee
                 </Button>

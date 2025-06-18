@@ -56,18 +56,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       const response = await fetch("/api/current-user");
       if (response.ok) {
-        const data = await response.json();
-        if (data.user && data.user.role === "admin") {
+        const data = await response.json();        if (data.user && data.user.role === "admin") {
           setAdmin(data.user);
         } else {
-          router.push("/admin/signin");
+          router.push("/signin");
         }
       } else {
-        router.push("/admin/signin");
+        router.push("/signin");
       }
     } catch (error) {
       console.error("Auth check failed:", error);
-      router.push("/admin/signin");
+      router.push("/signin");
     } finally {
       setLoading(false);
     }
@@ -81,9 +80,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       console.error("Logout failed:", error);
     }
   };
-
   const navigation = [
-    { name: "Dashboard", href: "/admin/dashboard", icon: Home },
+    { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "All Employees", href: "/admin/employees", icon: Users },
     { name: "Add Employee", href: "/admin/employees/add", icon: UserPlus },
     { name: "Profile Settings", href: "/admin/profile", icon: Settings },

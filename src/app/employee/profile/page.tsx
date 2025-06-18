@@ -61,15 +61,14 @@ export default function EmployeeProfile() {
           firstName: data.user.firstName || "",
           lastName: data.user.lastName || "",
           email: data.user.email || "",
-          phone: data.user.phone || "",
-          age: data.user.age || "",
+          phone: data.user.phone || "",          age: data.user.age || "",
         });
       } else {
-        router.push("/employee/signin");
+        router.push("/signin");
       }
     } catch (error) {
       console.error("Error fetching current employee:", error);
-      router.push("/employee/signin");
+      router.push("/signin");
     } finally {
       setLoading(false);
     }
@@ -197,11 +196,10 @@ export default function EmployeeProfile() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Access Denied
           </h2>
-          <p className="text-gray-600 mb-4">
-            You need to be logged in to view this page.
+          <p className="text-gray-600 mb-4">            You need to be logged in to view this page.
           </p>
           <Button asChild>
-            <Link href="/employee/signin">Sign In</Link>
+            <Link href="/signin">Sign In</Link>
           </Button>
         </div>
       </div>
@@ -213,9 +211,8 @@ export default function EmployeeProfile() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="md:flex flex-col items-center space-x-4">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/employee/dashboard">
+          <div className="md:flex flex-col items-center space-x-4">            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Link>
@@ -520,7 +517,7 @@ export default function EmployeeProfile() {
                 <div>
                   <p className="text-sm text-gray-600">Employee ID</p>
                   <p className="font-medium text-gray-900 font-mono">
-                    {(employee._id as string).substring(0, 8).toUpperCase()}
+                    {(employee._id as string).slice(-8).toUpperCase()}
                   </p>
                 </div>
                 <div>

@@ -56,8 +56,7 @@ export default function AdminSignUp() {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        toast.error(data.error || "Failed to create account");
+      if (!response.ok) {        toast.error(data.error || "Failed to create account");
         return;
       }
 
@@ -65,9 +64,10 @@ export default function AdminSignUp() {
       setSuccess(true);
       // Redirect to signin after 2 seconds
       setTimeout(() => {
-        router.push("/admin/signin");
+        router.push("/signin");
       }, 2000);
     } catch (error) {
+      console.error("Sign up error:", error);
       toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import Employee from "@/models/employee.model";
 import dbConnect from "@/db/dbConnect";
+import User from "@/models/user.model";
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
@@ -21,20 +21,22 @@ export async function GET(request: NextRequest) {
     if (department && department !== "all") {
         query.department = department;
     }
+    query.role = "employee"; // Ensure we only fetch employees
+
     try {
         await dbConnect();
         // Create pipeline array for aggregation
         const pipeline: any[] = [];
-        
+
         // Add match stage to pipeline if query has conditions
         if (Object.keys(query).length > 0) {
             pipeline.push({ $match: query });
         }
-        
+
         // Use the pipeline in the aggregate function
-        const employeeAggregate = Employee.aggregate(pipeline);
-        
-        const paginatedResult = await Employee.aggregatePaginate(employeeAggregate, {
+        const employeeAggregate = User.aggregate(pipeline);
+
+        const paginatedResult = await User.aggregatePaginate(employeeAggregate, {
             page: page,
             limit: limit,
             sort: { createdAt: -1 }

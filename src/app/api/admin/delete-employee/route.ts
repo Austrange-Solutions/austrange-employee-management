@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
-import Employee from "@/models/employee.model";
+import User from "@/models/user.model";
 import dbConnect from "@/db/dbConnect";
 
 export async function DELETE(request: NextRequest) {
     try {
         const { employeeId } = await request.json();
-        
+
         const token = await getDataFromToken(request);
         if (!token) {
             return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
         }
-        
+
         if (token.role !== "admin") {
             return NextResponse.json({ error: "Only admins can delete employees" }, { status: 403 });
         }
@@ -22,8 +22,8 @@ export async function DELETE(request: NextRequest) {
         }
 
         await dbConnect();
-        
-        const employee = await Employee.findByIdAndDelete(employeeId);
+
+        const employee = await User.findByIdAndDelete(employeeId);
         if (!employee) {
             return NextResponse.json({ error: "Employee not found" }, { status: 404 });
         }

@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dbConnect from "@/db/dbConnect";
-import Employee from "@/models/employee.model";
+import User from "@/models/user.model";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-    const { 
-        firstName, 
-        lastName, 
-        email, 
-        phone, 
-        age, 
-        designation, 
+    const {
+        firstName,
+        lastName,
+        email,
+        phone,
+        age,
+        designation,
         password,
         address,
         city,
@@ -23,20 +23,22 @@ export async function POST(request: NextRequest) {
         department_code,
         level,
         level_code,
-        dateOfJoining
+        dateOfJoining,
+        username
     } = await request.json();
-    
-    if (!firstName || !lastName || !email || !phone || !age || !designation || !password) {
+
+    if (!username || !firstName || !lastName || !email || !phone || !age || !designation || !password) {
         return NextResponse.json({
-            error: "Required fields: firstName, lastName, email, phone, age, designation, password"
+            error: "Required fields: username, firstName, lastName, email, phone, age, designation, password"
         }, { status: 400 });
     }
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
     await dbConnect();
 
     try {
-        const employee = await Employee.create({
+        const employee = await User.create({
+            username,
             firstName,
             lastName,
             email,

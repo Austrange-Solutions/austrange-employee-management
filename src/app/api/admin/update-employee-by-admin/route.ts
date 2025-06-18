@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
-import Employee from "@/models/employee.model";
 import dbConnect from "@/db/dbConnect";
+import User from "@/models/user.model";
 
 export async function PATCH(request: NextRequest) {
     const { employeeId, firstName, lastName, email, role, designation, department, level, departmentCode, levelCode, status } = await request.json();
@@ -21,7 +21,7 @@ export async function PATCH(request: NextRequest) {
     await dbConnect();
 
     try {
-        const employee = await Employee.findById(employeeId);
+        const employee = await User.findById(employeeId);
         if (!employee) {
             return NextResponse.json({
                 error: "Employee not found"
