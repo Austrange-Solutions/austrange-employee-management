@@ -8,7 +8,7 @@ type TAttendance = {
     dateOfWorking: Date;
     dayOfWeek: string;
     loginTime: Date;
-    logoutTime: Date;
+    logoutTime?: Date;
     breakStartTime?: Date;
     breakEndTime?: Date;
     breakDuration?: number;
@@ -17,7 +17,7 @@ type TAttendance = {
     endLatitude?: number;
     endLongitude?: number;
     workingHoursCompleted?: boolean;
-    status?: "present" | "absent" | "on_leave";
+    status?: "active" | "inactive" | "on_leave" | "absent" | "on_break" | "present";
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }
@@ -42,31 +42,28 @@ const attendanceSchema = new Schema<TAttendance>({
     },
     logoutTime: {
         type: Date,
-        required: true
     },
     breakStartTime: {
         type: Date,
-        default: null
     },
     breakEndTime: {
         type: Date,
-        default: null
+    },
+    breakDuration: {
+        type: Number,
+        default: 0
     },
     startLatitude: {
         type: Number,
-        default: null
     },
     startLongitude: {
         type: Number,
-        default: null
     },
     endLatitude: {
         type: Number,
-        default: null
     },
     endLongitude: {
         type: Number,
-        default: null
     },
     workingHoursCompleted: {
         type: Boolean,
@@ -74,8 +71,8 @@ const attendanceSchema = new Schema<TAttendance>({
     },
     status: {
         type: String,
-        enum: ["present", "absent", "on_leave"],
-        default: "present"
+        enum: ["present", "absent", "on_leave", "on_break", "active", "inactive"],
+        default: "inactive"
     },
 }, { timestamps: true })
 

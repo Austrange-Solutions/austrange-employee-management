@@ -1,5 +1,6 @@
 import dbConnect from "@/db/dbConnect";
 import Attendance from "@/models/attendance.model";
+import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -14,6 +15,13 @@ export async function POST(request: NextRequest) {
 
         await dbConnect();
 
+        const user = await User.findById(userId);
+        if (!user) {
+            return NextResponse.json({
+                error: "User not found"
+            }, { status: 404 });
+        }
+
         const attendanceRecord = await Attendance.findOneAndUpdate({ user: userId, dateOfWorking: new Date(dateOfWorking).toISOString().split('T')[0] }, {
             $set: {
                 breakStartTime,
@@ -26,12 +34,14 @@ export async function POST(request: NextRequest) {
                 error: "No attendance record found for the given date"
             }, { status: 404 });
         }
-
+        user.status = "on_break"; // Update user status to on_break
+        await user.save();
         return NextResponse.json({
             message: "Break started!",
             attendance: attendanceRecord
         }, { status: 200 });
     } catch (error) {
+        console.error("Error starting break:", error);
         if (error instanceof Error) {
             return NextResponse.json({
                 error: "Failed to start break: " + error.message

@@ -78,6 +78,9 @@ const createEmployeeSchema = z.object({
         .min(2, "Username must be at least 2 characters long")
         .max(100, "Username must be less than 100 characters")
         .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+    workingHours: z.string()
+        .min(1, "Working hours are required")
+        .regex(/^\d{1,2}:\d{2}$/, "Working hours must be in HH:MM format"),
     bloodGroup: z.string()
         .min(1, "Blood group is required")
         .regex(/^(A|B|AB|O)[+-]$/, "Blood group must be valid (e.g., A+, B-, AB+, O-)"),

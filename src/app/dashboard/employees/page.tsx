@@ -533,7 +533,7 @@ export default function EmployeeManagement() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
                               <Link
-                                href={`/dashboard/employees/${employee._id}`}
+                                href={`/dashboard/edit-employee-information/${employee._id}`}
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit Employee

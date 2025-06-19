@@ -24,12 +24,13 @@ export async function POST(request: NextRequest) {
         level,
         level_code,
         dateOfJoining,
-        username
+        username,
+        workingHours
     } = await request.json();
 
-    if (!username || !firstName || !lastName || !email || !phone || !age || !designation || !password) {
+    if (!username || !firstName || !lastName || !email || !phone || !age || !designation || !password || !workingHours) {
         return NextResponse.json({
-            error: "Required fields: username, firstName, lastName, email, phone, age, designation, password"
+            error: "Required fields: username, firstName, lastName, email, phone, age, designation, password, workingHours"
         }, { status: 400 });
     }
 
@@ -58,7 +59,8 @@ export async function POST(request: NextRequest) {
             level_code: level_code || "L1",
             dateOfJoining: dateOfJoining || new Date(),
             status: "active",
-            role: "employee"
+            role: "employee",
+            workingHours: workingHours || "0"
         });
 
         return NextResponse.json({

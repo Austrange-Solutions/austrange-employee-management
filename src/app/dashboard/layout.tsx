@@ -27,6 +27,8 @@ import {
   Building2,
   CalendarDays,
   Key,
+  Clock,
+  History,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -55,33 +57,31 @@ export default function DashboardLayout({
 
   // Skip auth check for signin/signup pages
   const isAuthPage =
-    pathname?.includes("/signin") || pathname?.includes("/signup");
+    pathname?.includes("/signin") || pathname?.includes("/signup");  useEffect(() => {
+    const checkAuthAsync = async () => {
+      try {
+        const response = await fetch("/api/current-user");
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          // Redirect to unified signin page
+          router.push("/signin");
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        router.push("/signin");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => {
     if (!isAuthPage) {
-      checkAuth();
+      checkAuthAsync();
     } else {
       setLoading(false);
     }
-  }, [isAuthPage]);
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch("/api/current-user");
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
-        // Redirect to unified signin page
-        router.push("/signin");
-      }
-    } catch (error) {
-      console.error("Auth check failed:", error);
-      router.push("/signin");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isAuthPage, router]);
 
   const handleLogout = async () => {
     try {
@@ -91,11 +91,12 @@ export default function DashboardLayout({
       console.error("Logout failed:", error);
     }
   };
-
   // Role-based navigation
   const getNavigation = () => {
     const baseNavigation = [
       { name: "Dashboard", href: "/dashboard", icon: Home },
+      { name: "Attendance", href: "/dashboard/attendance", icon: Clock },
+      { name: "Attendance History", href: "/dashboard/attendance/history", icon: History },
       { name: "My Profile", href: "/dashboard/profile", icon: User },
       {
         name: "Change Password",
@@ -268,11 +269,16 @@ export default function DashboardLayout({
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuSeparator />                  <DropdownMenuItem asChild>
                     <Link href="/dashboard/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/attendance" className="cursor-pointer">
+                      <Clock className="mr-2 h-4 w-4" />
+                      <span>Attendance</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

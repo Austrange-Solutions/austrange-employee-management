@@ -4,7 +4,7 @@ import dbConnect from "@/db/dbConnect";
 import User from "@/models/user.model";
 
 export async function PATCH(request: NextRequest) {
-    const { employeeId, firstName, lastName, email, role, designation, department, level, departmentCode, levelCode, status } = await request.json();
+    const { employeeId, firstName, lastName, email, role, designation, age, bloodGroup, username, address, city, state, country, zip, department, level, departmentCode, levelCode, status, dateOfJoining, dateOfLeaving, workingHours } = await request.json();
 
     const token = await getDataFromToken(request);
     if (!token) {
@@ -39,6 +39,18 @@ export async function PATCH(request: NextRequest) {
         if (departmentCode) employee.department_code = departmentCode;
         if (levelCode) employee.level_code = levelCode;
         if (status) employee.status = status;
+        if (age !== undefined) employee.age = age; // age can be 0, so check for undefined
+        if (bloodGroup) employee.bloodGroup = bloodGroup;
+        if (username) employee.username = username;
+        if (address) employee.address = address;
+        if (city) employee.city = city;
+        if (state) employee.state = state;
+        if (country) employee.country = country;
+        if (zip) employee.zip = zip;
+        if (dateOfJoining) employee.dateOfJoining = dateOfJoining;
+        if (dateOfLeaving) employee.dateOfLeaving = dateOfLeaving;
+        if (workingHours) employee.workingHours = workingHours;
+
 
         await employee.save();
 
@@ -57,7 +69,8 @@ export async function PATCH(request: NextRequest) {
                 level_code: employee.level_code,
                 status: employee.status
             }
-        }, { status: 200 });    } catch (error: unknown) {
+        }, { status: 200 });
+    } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
         return NextResponse.json({
             error: "Failed to update employee: " + errorMessage

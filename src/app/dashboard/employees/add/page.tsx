@@ -570,6 +570,19 @@ export default function AddEmployee() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="workingHours"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Working Hours *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., 8" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </CardContent>
           </Card>

@@ -22,13 +22,13 @@ type TUser = {
     country?: string; // Optional field for country
     zip?: string; // Optional field for zip code
     dateOfBirth?: string; // Optional field for date of birth
-    dateOfJoining?: string; // Optional field for date of joining
+    dateOfJoining?:  string; // Optional field for date of joining
     dateOfLeaving?: string; // Optional field for date of leaving
     profilePicture?: string; // Optional field for profile picture
     bloodGroup?: string; // Optional field for blood group
-    workingHours?: number; // Optional field for working hours
-    status?: "active" | "inactive" | "on_leave"; // Optional field for status, e.g., 'active', 'inactive'
-    createdAt?: Date | string; // Optional field for creation 
+    workingHours?: string; // Optional field for working hours
+    status?: "active" | "inactive" | "on_leave" | "on_break" | "absent" | "present"; // Optional field for status, e.g., 'active', 'inactive'
+    createdAt?: Date | string; // Optional field for creation
     updatedAt?: Date | string; // Optional field for last update
 }
 
@@ -114,7 +114,7 @@ const userSchema = new Schema<TUser>(
         },
         status: {
             type: String,
-            enum: ['active', 'inactive', 'on_leave'],
+            enum: ['active', 'inactive', 'on_leave', 'on_break', 'absent', 'present'],
             default: 'active',
         },
         dateOfBirth: {
@@ -130,8 +130,8 @@ const userSchema = new Schema<TUser>(
             default: '',
         },
         workingHours: {
-            type: Number,
-            default: 0, // Default to 0 if not specified
+            type: String,
+            default: '00:00', // Default to 0 if not specified
         },
         profilePicture: {
             type: String,

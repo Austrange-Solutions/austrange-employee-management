@@ -56,32 +56,31 @@ export default function UnifiedDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
   useEffect(() => {
-    fetchCurrentUser();
-  }, []);
-
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/current-user");
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          router.push("/signin");
+        }
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+        router.push("/signin");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUser();
+  }, [router]);
   useEffect(() => {
     if (user?.role === 'admin') {
       fetchDashboardStats();
     }
   }, [user]);
-
-  const fetchCurrentUser = async () => {    try {
-      const response = await fetch("/api/current-user");
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
-        router.push("/signin");
-      }
-    } catch (error) {
-      console.error("Error fetching current user:", error);
-      router.push("/signin");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchDashboardStats = async () => {
     try {
@@ -502,8 +501,7 @@ export default function UnifiedDashboard() {
             {user.role === 'admin' ? 'Common administrative tasks' : 'Common tasks and shortcuts'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          {user.role === 'admin' ? (
+        <CardContent>          {user.role === 'admin' ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link href="/dashboard/employees/add">
                 <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
@@ -517,10 +515,10 @@ export default function UnifiedDashboard() {
                   <span className="text-sm">Manage Employees</span>
                 </Button>
               </Link>
-              <Link href="/dashboard/departments">
+              <Link href="/dashboard/attendance">
                 <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
-                  <Building2 className="h-5 w-5" />
-                  <span className="text-sm">Departments</span>
+                  <Clock className="h-5 w-5" />
+                  <span className="text-sm">Attendance</span>
                 </Button>
               </Link>
               <Link href="/dashboard/admin-settings">
@@ -531,7 +529,19 @@ export default function UnifiedDashboard() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Link href="/dashboard/attendance">
+                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                  <Clock className="h-5 w-5" />
+                  <span className="text-sm">Mark Attendance</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/attendance/history">
+                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                  <Activity className="h-5 w-5" />
+                  <span className="text-sm">Attendance History</span>
+                </Button>
+              </Link>
               <Link href="/dashboard/profile">
                 <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
                   <User className="h-5 w-5" />
@@ -544,11 +554,6 @@ export default function UnifiedDashboard() {
                   <span className="text-sm">Change Password</span>
                 </Button>
               </Link>
-              <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2" disabled>
-                <Calendar className="h-5 w-5" />
-                <span className="text-sm">Leave Requests</span>
-                <span className="text-xs text-gray-400">(Coming Soon)</span>
-              </Button>
             </div>
           )}
         </CardContent>

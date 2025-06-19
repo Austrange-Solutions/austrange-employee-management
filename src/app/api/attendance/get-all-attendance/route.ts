@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dbConnect from "@/db/dbConnect";
 import Attendance from "@/models/attendance.model";
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -15,10 +16,26 @@ export async function GET(request: NextRequest) {
         const sort = searchParams.get("sort") || "dateOfWorking";
         const query: any = {};
         if (userId && userId !== "all") {
-            query.user = userId;
+            query.user = new mongoose.Types.ObjectId(userId);
         }
         if (date && date !== "all") {
-            query.dateOfWorking = new Date(date).toISOString().split('T')[0]; // Ensure date is in YYYY-MM-DD format
+            // Parse the input date
+            const selectedDate = new Date(date);
+            
+            // Create start of day (00:00:00) for the selected date
+            const startDate = new Date(selectedDate);
+            startDate.setUTCHours(0, 0, 0, 0);
+            
+            // Create start of the next day
+            const endDate = new Date(selectedDate);
+            endDate.setUTCDate(endDate.getUTCDate() + 1);
+            endDate.setUTCHours(0, 0, 0, 0);
+            
+            // Set query to find documents where dateOfWorking is between start and end
+            query.dateOfWorking = {
+                $gte: startDate,
+                $lt: endDate
+            };
         }
         if (status && status !== "all") {
             query.status = status;
