@@ -14,7 +14,6 @@ export async function getDataFromToken(request: NextRequest) {
             throw new Error("No token found");
         }
         const decodedToken: TokenData = jwt.verify(token, process.env.TOKEN_SECRET || "default_secret_key") as TokenData;
-
         if (!decodedToken) {
             throw new Error("Failed to decode token");
         }

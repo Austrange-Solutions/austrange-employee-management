@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,11 @@ export const metadata: Metadata = {
       url: "https://sahilmane.vercel.app",
     },
   ],
+  icons: {
+    icon: "/assets/images/Austrange Logo.png",
+    shortcut: "/assets/images/Austrange Logo.png",
+    apple: "/assets/images/Austrange Logo.png",
+  },
   description:
     "Austrange Solutions Employee Portal is a comprehensive platform designed to streamline employee management, enhance communication, and improve overall workforce efficiency. It provides tools for HR management, employee self-service, and performance tracking.",
 };
@@ -64,6 +70,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );
