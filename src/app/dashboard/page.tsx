@@ -15,7 +15,8 @@ import {
   User,
   Settings,
   Key,
-  Activity
+  Activity,
+  CreditCard
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -527,13 +528,18 @@ export default function UnifiedDashboard() {
                   <span className="text-sm">Admin Settings</span>
                 </Button>
               </Link>
-            </div>
-          ) : (
+            </div>          ) : (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link href="/dashboard/attendance">
                 <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
                   <Clock className="h-5 w-5" />
                   <span className="text-sm">Mark Attendance</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/id-card">
+                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                  <CreditCard className="h-5 w-5" />
+                  <span className="text-sm">ID Card</span>
                 </Button>
               </Link>
               <Link href="/dashboard/attendance/history">
@@ -546,12 +552,6 @@ export default function UnifiedDashboard() {
                 <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
                   <User className="h-5 w-5" />
                   <span className="text-sm">Update Profile</span>
-                </Button>
-              </Link>
-              <Link href="/dashboard/change-password">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
-                  <Key className="h-5 w-5" />
-                  <span className="text-sm">Change Password</span>
                 </Button>
               </Link>
             </div>

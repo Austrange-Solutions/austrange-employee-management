@@ -29,6 +29,7 @@ import {
   Key,
   Clock,
   History,
+  CreditCard,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -90,13 +91,13 @@ export default function DashboardLayout({
     } catch (error) {
       console.error("Logout failed:", error);
     }
-  };
-  // Role-based navigation
+  };  // Role-based navigation
   const getNavigation = () => {
     const baseNavigation = [
       { name: "Dashboard", href: "/dashboard", icon: Home },
       { name: "Attendance", href: "/dashboard/attendance", icon: Clock },
       { name: "Attendance History", href: "/dashboard/attendance/history", icon: History },
+      { name: "ID Card", href: "/dashboard/id-card", icon: CreditCard },
       { name: "My Profile", href: "/dashboard/profile", icon: User },
       {
         name: "Change Password",
@@ -273,6 +274,12 @@ export default function DashboardLayout({
                     <Link href="/dashboard/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/id-card" className="cursor-pointer">
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      <span>ID Card</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

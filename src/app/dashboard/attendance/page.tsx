@@ -83,29 +83,32 @@ export default function AttendancePage() {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, []); // Fetch current user and today's attendance
-  useEffect(() => {
-    const initializeData = async () => {
-      try {
-        const response = await fetch("/api/current-user");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          await fetchTodayAttendance(data.user._id);
-        } else {
-          router.push("/signin");
-        }
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-        router.push("/signin");
-      } finally {
-        setLoading(false);
-      }
-    };
+  }, []);
 
-    initializeData();
+  // Fetch current user and today's attendance
+  useEffect(() => {
+    fetchCurrentUser();
     getCurrentLocation();
-  }, [router]);
+  }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("/api/current-user");
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        await fetchTodayAttendance(data.user._id);
+      } else {
+        router.push("/signin");
+      }
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      router.push("/signin");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchTodayAttendance = async (userId: string) => {
     try {
       const today = new Date().toISOString().split("T")[0];
@@ -128,7 +131,6 @@ export default function AttendancePage() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log(position);
           setCurrentLocation({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -162,7 +164,7 @@ export default function AttendancePage() {
           userId: user._id,
           dateOfWorking: now.toISOString().split("T")[0],
           dayOfWeek: now.toLocaleDateString("en-US", { weekday: "long" }),
-          loginTime: now.getTime(),
+          loginTime: new Date(now.getTime()),
           startLatitude: currentLocation.latitude,
           startLongitude: currentLocation.longitude,
           status: "present",
@@ -368,10 +370,7 @@ export default function AttendancePage() {
   };
 
   const formatTime = (timestamp: string | number) => {
-    const date = new Date(
-      typeof timestamp === "number" ? timestamp : parseInt(timestamp)
-    );
-    return date.toLocaleTimeString("en-US", {
+    return new Date(timestamp).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
@@ -433,18 +432,16 @@ export default function AttendancePage() {
       </div>
     );
   }
+
   const isLoggedIn =
     todayAttendance && todayAttendance.loginTime && !todayAttendance.logoutTime;
-  const isLoggedOut = !!(todayAttendance && todayAttendance.logoutTime);
-  const isOnBreak = !!(
-    todayAttendance && todayAttendance.status === "on_break"
-  );
+  const isLoggedOut = todayAttendance && todayAttendance.logoutTime;
+  const isOnBreak = todayAttendance && todayAttendance.status === "on_break";
   const hasAttendanceToday = todayAttendance !== null;
-  const isLeaveOrAbsent = !!(
+  const isLeaveOrAbsent =
     todayAttendance &&
     (todayAttendance.status === "on_leave" ||
-      todayAttendance.status === "absent")
-  );
+      todayAttendance.status === "absent");
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -474,7 +471,7 @@ export default function AttendancePage() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Calendar className="h-5 w-5 mr-2" />
-            Today&apos;s Status
+            Today&lsquo;s Status
           </CardTitle>
           <CardDescription>
             {new Date().toLocaleDateString("en-US", {
@@ -519,16 +516,16 @@ export default function AttendancePage() {
                   )}
 
                   {todayAttendance.breakDuration &&
-                    todayAttendance.breakDuration > 0 && (
-                      <div>
-                        <span className="text-gray-500 block">
-                          Break Duration
-                        </span>
-                        <span className="font-medium">
-                          {formatDuration(todayAttendance.breakDuration)}
-                        </span>
-                      </div>
-                    )}
+                  todayAttendance.breakDuration > 0 ? (
+                    <div>
+                      <span className="text-gray-500 block">
+                        Break Duration
+                      </span>
+                      <span className="font-medium">
+                        {formatDuration(todayAttendance.breakDuration)}
+                      </span>
+                    </div>
+                  ) : null}
 
                   {todayAttendance.workingHoursCompleted !== undefined && (
                     <div>
@@ -660,19 +657,14 @@ export default function AttendancePage() {
                   </span>
                   <span className="font-medium">
                     {formatDuration(
-                      (isLoggedOut && todayAttendance.logoutTime
-                        ? new Date(
-                            typeof todayAttendance.logoutTime === "number"
-                              ? todayAttendance.logoutTime
-                              : parseInt(todayAttendance.logoutTime)
-                          ).getTime()
-                        : currentTime.getTime()) -
-                        new Date(
-                          typeof todayAttendance.loginTime === "number"
-                            ? todayAttendance.loginTime
-                            : parseInt(todayAttendance.loginTime)
-                        ).getTime() -
-                        (todayAttendance.breakDuration || 0)
+                      isLoggedOut && todayAttendance.logoutTime
+                        ? new Date(todayAttendance.logoutTime).getTime() -
+                            new Date(todayAttendance.loginTime).getTime() -
+                            new Date(
+                              todayAttendance.breakDuration || 0
+                            ).getTime()
+                        : new Date().getTime() -
+                            new Date(todayAttendance.loginTime).getTime()
                     )}
                   </span>
                 </div>

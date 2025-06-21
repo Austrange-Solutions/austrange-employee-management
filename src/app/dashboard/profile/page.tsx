@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Mail, MapPin, Save, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import EmployeeIdCard from "@/components/EmployeeIdCard";
 
 interface User {
   _id: string;
@@ -54,40 +55,39 @@ export default function UnifiedProfile() {
     designation: "",
   });
   const router = useRouter();
-
   useEffect(() => {
-    fetchCurrentUser();
-  }, []);
-
-  const fetchCurrentUser = async () => {
-    try {
-      const response = await fetch("/api/current-user");
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-        setFormData({
-          firstName: data.user.firstName || "",
-          lastName: data.user.lastName || "",
-          email: data.user.email || "",
-          phone: data.user.phone || "",
-          age: data.user.age || "",
-          address: data.user.address || "",          city: data.user.city || "",
-          state: data.user.state || "",
-          country: data.user.country || "",
-          zip: data.user.zip || "",
-          designation: data.user.designation || "",
-        });
-      } else {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/current-user");
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          setFormData({
+            firstName: data.user.firstName || "",
+            lastName: data.user.lastName || "",
+            email: data.user.email || "",
+            phone: data.user.phone || "",
+            age: data.user.age || "",
+            address: data.user.address || "",
+            city: data.user.city || "",
+            state: data.user.state || "",
+            country: data.user.country || "",
+            zip: data.user.zip || "",
+            designation: data.user.designation || "",
+          });
+        } else {
+          router.push("/signin");
+        }
+      } catch (error) {
+        console.error("Error fetching current user:", error);
         router.push("/signin");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching current user:", error);
-      router.push("/signin");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    };
+    
+    fetchUser();
+  }, [router]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
       ...prev,
@@ -444,11 +444,15 @@ export default function UnifiedProfile() {
                         Save Changes
                       </>
                     )}
-                  </Button>
-                </div>
+                  </Button>                </div>
               </form>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Employee ID Card */}
+        <div className="lg:col-span-1">
+          <EmployeeIdCard user={user} />
         </div>
       </div>
     </div>

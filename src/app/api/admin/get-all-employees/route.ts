@@ -10,6 +10,8 @@ export async function GET(request: NextRequest) {
     const level = searchParams.get("level") || "all";
     const status = searchParams.get("status") || "all";
     const department = searchParams.get("department") || "all";
+    const role = searchParams.get("role") || "all";
+    // Validate page and limit
 
     const query: any = {};
     if (level && level !== "all") {
@@ -21,7 +23,9 @@ export async function GET(request: NextRequest) {
     if (department && department !== "all") {
         query.department = department;
     }
-    query.role = "employee"; // Ensure we only fetch employees
+    if (role && role !== "all") {
+        query.role = role;
+    }
 
     try {
         await dbConnect();

@@ -42,16 +42,14 @@ export async function POST(request: NextRequest) {
 
         // check if the user have completed their working hours
         const workingHours = Number(logoutTime) - Number(attendanceRecord.loginTime);
+        console.log("Working Hours:", workingHours);
         let userWorkingHours = Number(user.workingHours?.split(":")[0]);
         let userWorkingMinutes = Number(user.workingHours?.split(":")[1]);
-        if (userWorkingHours && userWorkingMinutes) {
-            userWorkingHours = Number(userWorkingHours) * 3600000; // Convert hours to milliseconds
-            userWorkingMinutes = Number(userWorkingMinutes) * 60000; // Convert minutes to milliseconds
-        } else {
-            userWorkingHours = 0;
-            userWorkingMinutes = 0;
-        }
+        console.log("User Working Hours:", userWorkingHours, "User Working Minutes:", userWorkingMinutes);
+        userWorkingHours = Number(userWorkingHours) * 3600000; // Convert hours to milliseconds
+        userWorkingMinutes = Number(userWorkingMinutes) * 60000; // Convert minutes to milliseconds
         const totalWorkingHours = userWorkingHours + userWorkingMinutes;
+        console.log("Working Hours:", workingHours, "Total Working Hours:", totalWorkingHours);
         if (workingHours < totalWorkingHours) {
             attendanceRecord.workingHoursCompleted = false;
         } else {

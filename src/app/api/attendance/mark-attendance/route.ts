@@ -36,12 +36,11 @@ export async function POST(request: NextRequest) {
             });
             return NextResponse.json({ message: "Attendance marked as " + status, status }, { status: 201 });
         }
-
         const attendance = await Attendance.create({
             user: userId,
             dateOfWorking,
             dayOfWeek,
-            loginTime,
+            loginTime, // Adjusting for timezone
             startLatitude,
             startLongitude,
             status: status || "present",

@@ -117,12 +117,7 @@ export default function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
-  }, [
-    searchTerm,
-    statusFilter,
-    departmentFilter,
-    levelFilter,
-  ]);
+  }, [searchTerm, statusFilter, departmentFilter, levelFilter]);
   useEffect(() => {
     // Fetch employees whenever filters change
     if (user && user.role === "admin") {
@@ -208,6 +203,35 @@ export default function EmployeeManagement() {
     }
   };
 
+  const handleRemoveAdmin = async (employeeId: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to remove admin privileges from this employee? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/remove-admin", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: employeeId }),
+      });
+
+      if (response.ok) {
+        toast.success("Admin privileges removed successfully");
+        await fetchEmployees(); // Refresh the list
+      } else {
+        const data = await response.json();
+        toast.error(data.error || "Failed to remove admin privileges");
+      }
+    } catch (error) {
+      console.error("Error removing admin:", error);
+      toast.error("Network error. Please try again.");
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -243,6 +267,35 @@ export default function EmployeeManagement() {
 
     return matchesSearch && matchesStatus;
   });
+
+  const promoteToAdmin = async (employeeId: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to promote this employee to admin? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/promote-to-admin", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: employeeId }),
+      });
+
+      if (response.ok) {
+        toast.success("Employee promoted to admin successfully");
+        await fetchEmployees(); // Refresh the list
+      } else {
+        const data = await response.json();
+        toast.error(data.error || "Failed to promote employee");
+      }
+    } catch (error) {
+      console.error("Error promoting employee:", error);
+      toast.error("Network error. Please try again.");
+    }
+  };
 
   // if (loading) {
   //   return (
@@ -405,10 +458,7 @@ export default function EmployeeManagement() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select
-                value={levelFilter}
-                onValueChange={setLevelFilter}
-              >
+              <Select value={levelFilter} onValueChange={setLevelFilter}>
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Level" />
                 </SelectTrigger>
@@ -546,6 +596,23 @@ export default function EmployeeManagement() {
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete Employee
                             </DropdownMenuItem>
+                            {employee.role !== "admin" ? (
+                              <DropdownMenuItem
+                                onClick={() => promoteToAdmin(employee._id)}
+                                className="text-blue-600 focus:text-blue-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Make Admin
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => handleRemoveAdmin(employee._id)}
+                                className="text-blue-600 focus:text-blue-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Remove Admin
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

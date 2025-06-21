@@ -5,22 +5,41 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Calendar, 
-  CheckCircle, 
-  XCircle, 
-  Coffee, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Coffee,
   Clock,
   Filter,
   Download,
   Plane,
   MapPin,
   Timer,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -47,7 +66,13 @@ interface AttendanceRecord {
   endLatitude?: number;
   endLongitude?: number;
   workingHoursCompleted?: boolean;
-  status: "present" | "absent" | "on_leave" | "on_break" | "active" | "inactive";
+  status:
+    | "present"
+    | "absent"
+    | "on_leave"
+    | "on_break"
+    | "active"
+    | "inactive";
   createdAt: string;
   updatedAt: string;
 }
@@ -55,12 +80,14 @@ interface AttendanceRecord {
 export default function AttendanceHistoryPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<
+    AttendanceRecord[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
-  
+
   // Filters
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -101,14 +128,16 @@ export default function AttendanceHistoryPage() {
       const params = new URLSearchParams({
         userId: user._id,
         page: currentPage.toString(),
-        limit: "10"
+        limit: "10",
       });
 
       if (dateFilter) params.append("date", dateFilter);
       if (statusFilter !== "all") params.append("status", statusFilter);
 
-      const response = await fetch(`/api/attendance/get-all-attendance?${params}`);
-      
+      const response = await fetch(
+        `/api/attendance/get-all-attendance?${params}`
+      );
+
       if (response.ok) {
         const data = await response.json();
         setAttendanceRecords(data.attendance || []);
@@ -134,20 +163,20 @@ export default function AttendanceHistoryPage() {
 
   const formatTime = (timestamp: string | number) => {
     if (!timestamp) return "-";
-    const date = new Date(typeof timestamp === 'number' ? timestamp : parseInt(timestamp));
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
+    return new Date(timestamp).toLocaleString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata", // Adjust to your timezone
     });
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -156,7 +185,7 @@ export default function AttendanceHistoryPage() {
     const minutes = Math.floor(milliseconds / (1000 * 60));
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${remainingMinutes}m`;
     }
@@ -165,11 +194,20 @@ export default function AttendanceHistoryPage() {
 
   const calculateWorkingHours = (record: AttendanceRecord) => {
     if (!record.loginTime || !record.logoutTime) return "-";
-    
-    const loginTime = new Date(typeof record.loginTime === 'number' ? record.loginTime : parseInt(record.loginTime));
-    const logoutTime = new Date(typeof record.logoutTime === 'number' ? record.logoutTime : parseInt(record.logoutTime));
-    const workDuration = logoutTime.getTime() - loginTime.getTime() - (record.breakDuration || 0);
-    
+
+    const loginTime = new Date(
+      typeof record.loginTime === "number"
+        ? record.loginTime
+        : parseInt(record.loginTime)
+    );
+    const logoutTime = new Date(
+      typeof record.logoutTime === "number"
+        ? record.logoutTime
+        : parseInt(record.logoutTime)
+    );
+    const workDuration =
+      logoutTime.getTime() - loginTime.getTime() - (record.breakDuration || 0);
+
     return formatDuration(workDuration);
   };
 
@@ -183,13 +221,15 @@ export default function AttendanceHistoryPage() {
       inactive: { color: "bg-gray-100 text-gray-800", icon: XCircle },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.inactive;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] ||
+      statusConfig.inactive;
     const Icon = config.icon;
 
     return (
       <Badge className={`${config.color} flex items-center gap-1 w-fit`}>
         <Icon className="h-3 w-3" />
-        {status.replace('_', ' ').toUpperCase()}
+        {status.replace("_", " ").toUpperCase()}
       </Badge>
     );
   };
@@ -215,34 +255,37 @@ export default function AttendanceHistoryPage() {
       "Break Duration",
       "Working Hours",
       "Status",
-      "Hours Completed"
+      "Hours Completed",
     ];
 
-    const csvData = attendanceRecords.map(record => [
+    const csvData = attendanceRecords.map((record) => [
       formatDate(record.dateOfWorking),
       record.dayOfWeek,
       formatTime(record.loginTime || ""),
       formatTime(record.logoutTime || ""),
       formatDuration(record.breakDuration || 0),
       calculateWorkingHours(record),
-      record.status.replace('_', ' ').toUpperCase(),
-      record.workingHoursCompleted ? "Yes" : "No"
+      record.status.replace("_", " ").toUpperCase(),
+      record.workingHoursCompleted ? "Yes" : "No",
     ]);
 
     const csvContent = [headers, ...csvData]
-      .map(row => row.map(cell => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
       .join("\\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `attendance-history-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute(
+      "download",
+      `attendance-history-${new Date().toISOString().split("T")[0]}.csv`
+    );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     toast.success("Attendance history exported successfully!");
   };
 
@@ -279,7 +322,9 @@ export default function AttendanceHistoryPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Attendance History</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Attendance History
+            </h1>
             <p className="text-gray-600 mt-1">
               View your complete attendance records and working hours
             </p>
@@ -310,7 +355,7 @@ export default function AttendanceHistoryPage() {
                 className="w-full"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Month</label>
               <Input
@@ -320,7 +365,7 @@ export default function AttendanceHistoryPage() {
                 className="w-full"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -337,7 +382,7 @@ export default function AttendanceHistoryPage() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="flex items-end space-x-2">
               <Button onClick={fetchAttendanceHistory} disabled={loading}>
                 Apply Filters
@@ -428,15 +473,18 @@ export default function AttendanceHistoryPage() {
                         <TableCell>{getStatusBadge(record.status)}</TableCell>
                         <TableCell>
                           {record.workingHoursCompleted !== undefined ? (
-                            <Badge 
-                              className={record.workingHoursCompleted 
-                                ? "bg-green-100 text-green-800" 
-                                : "bg-red-100 text-red-800"
+                            <Badge
+                              className={
+                                record.workingHoursCompleted
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
                               }
                             >
                               {record.workingHoursCompleted ? "Yes" : "No"}
                             </Badge>
-                          ) : "-"}
+                          ) : (
+                            "-"
+                          )}
                         </TableCell>
                         <TableCell>
                           {record.startLatitude && record.startLongitude ? (
@@ -464,7 +512,9 @@ export default function AttendanceHistoryPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
                       disabled={currentPage === 1}
                     >
                       Previous
@@ -472,7 +522,7 @@ export default function AttendanceHistoryPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage(prev => prev + 1)}
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
                       disabled={currentPage === totalPages}
                     >
                       Next
