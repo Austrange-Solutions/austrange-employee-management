@@ -29,10 +29,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
-import { TEmployee } from "@/models/employee.model";
-
+import { TUser } from "@/models/user.model";
 export default function EmployeeProfile() {
-  const [employee, setEmployee] = useState<TEmployee | null>(null);
+  const [employee, setEmployee] = useState<TUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,7 +60,8 @@ export default function EmployeeProfile() {
           firstName: data.user.firstName || "",
           lastName: data.user.lastName || "",
           email: data.user.email || "",
-          phone: data.user.phone || "",          age: data.user.age || "",
+          phone: data.user.phone || "",
+          age: data.user.age || "",
         });
       } else {
         router.push("/signin");
@@ -196,7 +196,9 @@ export default function EmployeeProfile() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Access Denied
           </h2>
-          <p className="text-gray-600 mb-4">            You need to be logged in to view this page.
+          <p className="text-gray-600 mb-4">
+            {" "}
+            You need to be logged in to view this page.
           </p>
           <Button asChild>
             <Link href="/signin">Sign In</Link>
@@ -211,14 +213,18 @@ export default function EmployeeProfile() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="md:flex flex-col items-center space-x-4">            <Button variant="outline" size="sm" asChild>
+          <div className="md:flex flex-col items-center space-x-4">
+            {" "}
+            <Button variant="outline" size="sm" asChild>
               <Link href="/dashboard">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Link>
             </Button>
             <div>
-              <h1 className="md:text-3xl text-md font-bold text-gray-900">My Profile</h1>
+              <h1 className="md:text-3xl text-md font-bold text-gray-900">
+                My Profile
+              </h1>
               <p className="text-gray-600 mt-1 md:text-md text-sm">
                 Manage your personal information
               </p>
@@ -495,8 +501,14 @@ export default function EmployeeProfile() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Status</p>
-                  <Badge className={`mt-1 ${getStatusColor(employee.status)}`}>
-                    {employee.status.replace("_", " ").toUpperCase()}
+                  <Badge
+                    className={`mt-1 ${getStatusColor(
+                      employee.status as string
+                    )}`}
+                  >
+                    {(employee.status as string)
+                      .replace("_", " ")
+                      .toUpperCase()}
                   </Badge>
                 </div>
               </CardContent>

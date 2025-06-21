@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import dbConnect from "@/db/dbConnect";
@@ -40,8 +42,8 @@ export async function PATCH(request: NextRequest) {
         if (country) user.country = country;
         if (zip) user.zip = zip;
         if (designation) user.designation = designation;
-          await user.save();
-        
+        await user.save();
+
         // Return user without password
         const userObj = user.toObject();
         const { password, ...userWithoutPassword } = userObj;

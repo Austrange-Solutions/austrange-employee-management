@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import aggregatePaginate from "mongoose-aggregate-paginate-v2"
 
 type TUser = {
-    _id?: mongoose.Types.ObjectId; // Optional for new users
+    _id?: mongoose.Types.ObjectId | string; // Optional for new users
     username: string;
     firstName: string;
     lastName: string;

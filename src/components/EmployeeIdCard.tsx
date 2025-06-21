@@ -46,17 +46,6 @@ export default function EmployeeIdCard({
   const [isFlipped, setIsFlipped] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const generateEmployeeId = (user: User) => {
-    if (user.employeeId) return user.employeeId;
-
-    // Generate a simple employee ID based on name and creation date
-    const nameCode = (
-      user.firstName.substring(0, 2) + user.lastName.substring(0, 2)
-    ).toUpperCase();
-    const dateCode = user._id.substring(user._id.length - 4);
-    return `EMP${nameCode}${dateCode}`;
-  };
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return "Not specified";
     return new Date(dateString).toLocaleDateString("en-US", {

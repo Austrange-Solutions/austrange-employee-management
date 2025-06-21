@@ -83,14 +83,12 @@ export default function AttendancePage() {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
-
-  // Fetch current user and today's attendance
+  }, []);  // Fetch current user and today's attendance
   useEffect(() => {
     fetchCurrentUser();
     getCurrentLocation();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const fetchCurrentUser = async () => {
     try {
       const response = await fetch("/api/current-user");
@@ -433,15 +431,21 @@ export default function AttendancePage() {
     );
   }
 
-  const isLoggedIn =
-    todayAttendance && todayAttendance.loginTime && !todayAttendance.logoutTime;
-  const isLoggedOut = todayAttendance && todayAttendance.logoutTime;
+  const isLoggedIn: boolean = !!(
+    todayAttendance &&
+    todayAttendance.loginTime &&
+    !todayAttendance.logoutTime
+  );
+  const isLoggedOut: boolean = !!(
+    todayAttendance && todayAttendance.logoutTime
+  );
   const isOnBreak = todayAttendance && todayAttendance.status === "on_break";
   const hasAttendanceToday = todayAttendance !== null;
-  const isLeaveOrAbsent =
+  const isLeaveOrAbsent: boolean = !!(
     todayAttendance &&
     (todayAttendance.status === "on_leave" ||
-      todayAttendance.status === "absent");
+      todayAttendance.status === "absent")
+  );
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
