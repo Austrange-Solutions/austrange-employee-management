@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         );
 
         // Create reset link
-        const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+        const resetLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
         // Send password reset email
         const emailHtml = passwordResetHtmlTemplate(resetLink, user.firstName);
