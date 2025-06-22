@@ -20,6 +20,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { LogoSection } from "../reset-password/page";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -62,18 +63,7 @@ export default function ForgotPasswordPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo Section */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4">
-              <span className="text-2xl font-bold text-white">A</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Austrange Solutions
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Employee Management Portal
-            </p>
-          </div>
+          <LogoSection />
 
           <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-4">
@@ -168,18 +158,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4">
-            <span className="text-2xl font-bold text-white">A</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Austrange Solutions
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            Employee Management Portal
-          </p>
-        </div>
+        <LogoSection />
 
         <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
           <CardHeader className="text-center">
