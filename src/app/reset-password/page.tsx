@@ -6,9 +6,25 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Lock, ArrowLeft, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from "lucide-react";
+import {
+  Lock,
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Eye,
+  EyeOff,
+  Shield,
+} from "lucide-react";
+import Image from "next/image";
 
 // Loading skeleton component
 function ResetPasswordSkeleton() {
@@ -61,6 +77,27 @@ function ResetPasswordSkeleton() {
   );
 }
 
+export function LogoSection() {
+  return (
+    <div className="text-center mb-8">
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-2">
+        <Image
+          src={"/assets/images/Austrange Logo.png"}
+          alt="Logo"
+          width={64}
+          height={64}
+        />
+      </div>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        Austrange Solutions
+      </h1>
+      <p className="text-gray-600 dark:text-gray-400 text-sm">
+        Employee Management Portal
+      </p>
+    </div>
+  );
+}
+
 // Main reset password component that uses useSearchParams
 function ResetPasswordContent() {
   const [password, setPassword] = useState("");
@@ -68,16 +105,19 @@ function ResetPasswordContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);  const [error, setError] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState("");
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
-  
+
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
 
   // Validate token on component mount
   useEffect(() => {
     if (!token) {
-      setError("Invalid or missing reset token. Please request a new password reset.");
+      setError(
+        "Invalid or missing reset token. Please request a new password reset."
+      );
       setTokenValid(false);
       return;
     }
@@ -118,14 +158,19 @@ function ResetPasswordContent() {
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
 
     return {
-      isValid: pwd.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar,
+      isValid:
+        pwd.length >= minLength &&
+        hasUpperCase &&
+        hasLowerCase &&
+        hasNumbers &&
+        hasSpecialChar,
       requirements: {
         minLength: pwd.length >= minLength,
         hasUpperCase,
         hasLowerCase,
         hasNumbers,
         hasSpecialChar,
-      }
+      },
     };
   };
 
@@ -209,7 +254,8 @@ function ResetPasswordContent() {
               <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
                 <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
                 <AlertDescription className="text-green-800 dark:text-green-200">
-                  Your password has been securely updated. You can now sign in with your new password.
+                  Your password has been securely updated. You can now sign in
+                  with your new password.
                 </AlertDescription>
               </Alert>
 
@@ -220,15 +266,22 @@ function ResetPasswordContent() {
                   </h4>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
-                      <span className="w-5 h-5 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">!</span>
+                      <span className="w-5 h-5 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">
+                        !
+                      </span>
                       Keep your password secure and don&apos;t share it
                     </li>
                     <li className="flex items-start">
-                      <span className="w-5 h-5 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">!</span>
-                      Sign out from all devices if you suspect any unauthorized access
+                      <span className="w-5 h-5 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">
+                        !
+                      </span>
+                      Sign out from all devices if you suspect any unauthorized
+                      access
                     </li>
                     <li className="flex items-start">
-                      <span className="w-5 h-5 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">!</span>
+                      <span className="w-5 h-5 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">
+                        !
+                      </span>
                       Update your password regularly for better security
                     </li>
                   </ul>
@@ -247,7 +300,10 @@ function ResetPasswordContent() {
           <div className="text-center mt-6">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Need help? Contact{" "}
-              <a href="mailto:support@austrangesolutions.com" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+              <a
+                href="mailto:support@austrangesolutions.com"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
                 IT Support
               </a>
             </p>
@@ -262,18 +318,7 @@ function ResetPasswordContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo Section */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4">
-              <span className="text-2xl font-bold text-white">A</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Austrange Solutions
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Employee Management Portal
-            </p>
-          </div>
+          <LogoSection />
 
           <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             <CardHeader className="text-center pb-4">
@@ -288,7 +333,10 @@ function ResetPasswordContent() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Alert variant="destructive" className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+              <Alert
+                variant="destructive"
+                className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
+              >
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -299,7 +347,7 @@ function ResetPasswordContent() {
                     Request New Reset Link
                   </Button>
                 </Link>
-                
+
                 <Link href="/signin">
                   <Button variant="ghost" className="w-full">
                     <ArrowLeft className="h-4 w-4 mr-2" />
@@ -336,19 +384,7 @@ function ResetPasswordContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4">
-            <span className="text-2xl font-bold text-white">A</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Austrange Solutions
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            Employee Management Portal
-          </p>
-        </div>
-
+        <LogoSection />
         <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
@@ -364,14 +400,20 @@ function ResetPasswordContent() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <Alert variant="destructive" className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                <Alert
+                  variant="destructive"
+                  className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
+                >
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   New Password
                 </Label>
                 <div className="relative">
@@ -397,30 +439,62 @@ function ResetPasswordContent() {
                     )}
                   </button>
                 </div>
-                
+
                 {/* Password Requirements */}
                 {password && (
                   <div className="mt-2 space-y-1">
-                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Password Requirements:</p>
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Password Requirements:
+                    </p>
                     <div className="grid grid-cols-1 gap-1 text-xs">
-                      <div className={`flex items-center ${passwordValidation.requirements.minLength ? 'text-green-600' : 'text-gray-500'}`}>
-                        <span className="mr-2">{passwordValidation.requirements.minLength ? '✓' : '○'}</span>
+                      <div
+                        className={`flex items-center ${passwordValidation.requirements.minLength ? "text-green-600" : "text-gray-500"}`}
+                      >
+                        <span className="mr-2">
+                          {passwordValidation.requirements.minLength
+                            ? "✓"
+                            : "○"}
+                        </span>
                         At least 8 characters
                       </div>
-                      <div className={`flex items-center ${passwordValidation.requirements.hasUpperCase ? 'text-green-600' : 'text-gray-500'}`}>
-                        <span className="mr-2">{passwordValidation.requirements.hasUpperCase ? '✓' : '○'}</span>
+                      <div
+                        className={`flex items-center ${passwordValidation.requirements.hasUpperCase ? "text-green-600" : "text-gray-500"}`}
+                      >
+                        <span className="mr-2">
+                          {passwordValidation.requirements.hasUpperCase
+                            ? "✓"
+                            : "○"}
+                        </span>
                         One uppercase letter
                       </div>
-                      <div className={`flex items-center ${passwordValidation.requirements.hasLowerCase ? 'text-green-600' : 'text-gray-500'}`}>
-                        <span className="mr-2">{passwordValidation.requirements.hasLowerCase ? '✓' : '○'}</span>
+                      <div
+                        className={`flex items-center ${passwordValidation.requirements.hasLowerCase ? "text-green-600" : "text-gray-500"}`}
+                      >
+                        <span className="mr-2">
+                          {passwordValidation.requirements.hasLowerCase
+                            ? "✓"
+                            : "○"}
+                        </span>
                         One lowercase letter
                       </div>
-                      <div className={`flex items-center ${passwordValidation.requirements.hasNumbers ? 'text-green-600' : 'text-gray-500'}`}>
-                        <span className="mr-2">{passwordValidation.requirements.hasNumbers ? '✓' : '○'}</span>
+                      <div
+                        className={`flex items-center ${passwordValidation.requirements.hasNumbers ? "text-green-600" : "text-gray-500"}`}
+                      >
+                        <span className="mr-2">
+                          {passwordValidation.requirements.hasNumbers
+                            ? "✓"
+                            : "○"}
+                        </span>
                         One number
                       </div>
-                      <div className={`flex items-center ${passwordValidation.requirements.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
-                        <span className="mr-2">{passwordValidation.requirements.hasSpecialChar ? '✓' : '○'}</span>
+                      <div
+                        className={`flex items-center ${passwordValidation.requirements.hasSpecialChar ? "text-green-600" : "text-gray-500"}`}
+                      >
+                        <span className="mr-2">
+                          {passwordValidation.requirements.hasSpecialChar
+                            ? "✓"
+                            : "○"}
+                        </span>
                         One special character
                       </div>
                     </div>
@@ -429,7 +503,10 @@ function ResetPasswordContent() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Confirm New Password
                 </Label>
                 <div className="relative">
@@ -462,7 +539,13 @@ function ResetPasswordContent() {
 
               <Button
                 type="submit"
-                disabled={isLoading || !password.trim() || !confirmPassword.trim() || password !== confirmPassword || !passwordValidation.isValid}
+                disabled={
+                  isLoading ||
+                  !password.trim() ||
+                  !confirmPassword.trim() ||
+                  password !== confirmPassword ||
+                  !passwordValidation.isValid
+                }
                 className="w-full h-12 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium"
               >
                 {isLoading ? (
@@ -491,11 +574,14 @@ function ResetPasswordContent() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Help Section */}        <div className="mt-6 text-center">
+        {/* Help Section */}{" "}
+        <div className="mt-6 text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Need help? Contact{" "}
-            <a href="mailto:support@austrangesolutions.com" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+            <a
+              href="mailto:support@austrangesolutions.com"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
               IT Support
             </a>
           </p>
