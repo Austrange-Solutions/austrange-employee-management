@@ -172,18 +172,6 @@ export default function UnifiedSignIn() {
                 )}
               </Button>
 
-              <div className="text-center space-y-2">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Don&apos;t have an account?
-                </p>
-                <Link
-                  href="/signup"
-                  className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
-                >
-                  Create Account
-                </Link>
-              </div>
-
               <div className="text-center">
                 <Link
                   href="/forgot-password"

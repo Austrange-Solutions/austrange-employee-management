@@ -22,12 +22,14 @@ type TUser = {
     country?: string; // Optional field for country
     zip?: string; // Optional field for zip code
     dateOfBirth?: string; // Optional field for date of birth
-    dateOfJoining?:  string; // Optional field for date of joining
+    dateOfJoining?: string; // Optional field for date of joining
     dateOfLeaving?: string; // Optional field for date of leaving
     profilePicture?: string; // Optional field for profile picture
     bloodGroup?: string; // Optional field for blood group
     workingHours?: string; // Optional field for working hours
     status?: "active" | "inactive" | "on_leave" | "on_break" | "absent" | "present"; // Optional field for status, e.g., 'active', 'inactive'
+    resetPasswordToken?: string; // Optional field for password reset token
+    resetPasswordExpires?: Date; // Optional field for password reset expiry
     createdAt?: Date | string; // Optional field for creation
     updatedAt?: Date | string; // Optional field for last update
 }
@@ -136,6 +138,14 @@ const userSchema = new Schema<TUser>(
         profilePicture: {
             type: String,
             default: '',
+        },
+        resetPasswordToken: {
+            type: String,
+            default: null,
+        },
+        resetPasswordExpires: {
+            type: Date,
+            default: null,
         },
     }, {
     timestamps: true
