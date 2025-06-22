@@ -20,7 +20,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import { LogoSection } from "../reset-password/page";
+import LogoSection from "@/components/auth/LogoSection";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
