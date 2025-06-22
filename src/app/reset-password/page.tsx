@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,59 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, ArrowLeft, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from "lucide-react";
 
-export default function ResetPasswordPage() {
+// Loading skeleton component
+function ResetPasswordSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo Section Skeleton */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4 animate-pulse">
+            <div className="w-8 h-8 bg-white/20 rounded"></div>
+          </div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg mb-2 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-lg w-48 mx-auto animate-pulse"></div>
+        </div>
+
+        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4 animate-pulse">
+              <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+            </div>
+            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-lg mb-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-lg w-64 mx-auto animate-pulse"></div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Form skeleton */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+              </div>
+              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+            </div>
+
+            <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Help section skeleton */}
+        <div className="mt-6 text-center">
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-48 mx-auto animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main reset password component that uses useSearchParams
+function ResetPasswordContent() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -440,8 +492,7 @@ export default function ResetPasswordPage() {
           </CardContent>
         </Card>
 
-        {/* Help Section */}
-        <div className="mt-6 text-center">
+        {/* Help Section */}        <div className="mt-6 text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Need help? Contact{" "}
             <a href="mailto:support@austrangesolutions.com" className="text-indigo-600 dark:text-indigo-400 hover:underline">
@@ -451,5 +502,14 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main export with Suspense boundary
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordSkeleton />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
