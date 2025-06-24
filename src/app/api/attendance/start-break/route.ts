@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId, dateOfWorking, breakStartTime, status } = await request.json();
+        const { userId, dateOfWorking, breakStartTime } = await request.json();
 
         if (!userId || !dateOfWorking || !breakStartTime) {
             return NextResponse.json({
@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
         const attendanceRecord = await Attendance.findOneAndUpdate({ user: userId, dateOfWorking: new Date(dateOfWorking).toISOString().split('T')[0] }, {
             $set: {
                 breakStartTime,
-                status: status || "on_break" // Assuming status is "on_break" for successful break start
             }
         }, { new: true });
 

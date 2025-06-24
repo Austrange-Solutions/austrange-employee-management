@@ -45,6 +45,49 @@ interface User {
   status: string;
 }
 
+// Function to get proper page title based on pathname
+const getPageTitle = (pathname: string | null): string => {
+  if (!pathname) return "Dashboard";
+  
+  // Handle specific route patterns
+  if (pathname === "/dashboard") return "Dashboard";
+  if (pathname === "/dashboard/employees") return "All Employees";
+  if (pathname === "/dashboard/employees/add") return "Add Employee";
+  if (pathname === "/dashboard/attendance") return "Attendance";
+  if (pathname === "/dashboard/attendance/history") return "Attendance History";
+  if (pathname === "/dashboard/profile") return "My Profile";
+  if (pathname === "/dashboard/id-card") return "ID Card";
+  if (pathname === "/dashboard/change-password") return "Change Password";
+  if (pathname === "/dashboard/departments") return "Departments";
+  if (pathname === "/dashboard/reports") return "Reports";
+  if (pathname === "/dashboard/admin-settings") return "Admin Settings";
+  
+  // Handle dynamic routes with IDs
+  if (pathname.includes("/dashboard/attendance/") && !pathname.endsWith("/history")) {
+    return "Employee Attendance";
+  }
+  if (pathname.includes("/dashboard/employees/") && !pathname.endsWith("/add")) {
+    return "Employee Details";
+  }
+  
+  // Fallback for other routes - take the last segment and format it
+  const segments = pathname.split("/").filter(Boolean);
+  const lastSegment = segments[segments.length - 1];
+  
+  // Skip if it looks like an ID (long string with numbers/letters)
+  if (lastSegment && lastSegment.length > 10 && /^[a-f0-9]+$/i.test(lastSegment)) {
+    // Use the second-to-last segment instead
+    const secondLast = segments[segments.length - 2];
+    return secondLast
+      ? secondLast.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+      : "Dashboard";
+  }
+  
+  return lastSegment
+    ? lastSegment.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    : "Dashboard";
+};
+
 export default function DashboardLayout({
   children,
 }: {
@@ -217,13 +260,7 @@ export default function DashboardLayout({
 
               <div className="ml-4 lg:ml-0">
                 <h1 className="text-lg font-medium text-gray-900 dark:text-white">
-                  {pathname === "/dashboard"
-                    ? "Dashboard"
-                    : pathname
-                        ?.split("/")
-                        .pop()
-                        ?.replace(/-/g, " ")
-                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                  {getPageTitle(pathname)}
                 </h1>
               </div>
             </div>

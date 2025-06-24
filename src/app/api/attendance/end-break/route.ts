@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId, dateOfWorking, breakEndTime, status } = await request.json();
+        const { userId, dateOfWorking, breakEndTime } = await request.json();
         if (!userId || !dateOfWorking || !breakEndTime) {
             return NextResponse.json({
                 error: "All fields are required"
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
-        if (attendanceRecord.status !== "on_break") {
+        if (user.status !== "on_break") {
             return NextResponse.json({
                 error: "Break cannot be ended when not on break"
             }, { status: 400 });
@@ -53,8 +53,7 @@ export async function POST(request: NextRequest) {
         } else {
             attendanceRecord.breakDuration = breakDuration;
         }
-        attendanceRecord.breakEndTime = breakEndTime;
-        attendanceRecord.status = status || "active"; // Assuming status is "active" after break ends
+        attendanceRecord.breakEndTime = breakEndTime;// Assuming status is "active" after break ends
 
         await attendanceRecord.save();
         user.status = "active"; // Update user status to active after break ends

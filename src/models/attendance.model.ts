@@ -17,7 +17,7 @@ type TAttendance = {
     endLatitude?: number;
     endLongitude?: number;
     workingHoursCompleted?: boolean;
-    status?: "active" | "inactive" | "on_leave" | "absent" | "on_break" | "present";
+    status?: "present" | "absent" | "on_leave";
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }
@@ -71,7 +71,7 @@ const attendanceSchema = new Schema<TAttendance>({
     },
     status: {
         type: String,
-        enum: ["present", "absent", "on_leave", "on_break", "active", "inactive"],
+        enum: ["present", "absent", "on_leave"],
         default: "inactive"
     },
 }, { timestamps: true })

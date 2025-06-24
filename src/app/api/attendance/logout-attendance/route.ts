@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId, dateOfWorking, logoutTime, endLatitude, endLongitude, status } = await request.json();
+        const { userId, dateOfWorking, logoutTime, endLatitude, endLongitude } = await request.json();
 
         // Validate input
         if (!userId || !dateOfWorking || !logoutTime || !endLatitude || !endLongitude) {
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         attendanceRecord.logoutTime = logoutTime;
         attendanceRecord.endLatitude = endLatitude;
         attendanceRecord.endLongitude = endLongitude;
-        attendanceRecord.status = status || "present"; // Assuming status is "present" for successful logout
+        attendanceRecord.status = "present"; // Assuming status is "present" for successful logout
         await attendanceRecord.save();
         user.status = "inactive"; // Update user status to inactive after logout
         await user.save();

@@ -116,7 +116,7 @@ const userSchema = new Schema<TUser>(
         },
         status: {
             type: String,
-            enum: ['active', 'inactive', 'on_leave', 'on_break', 'absent', 'present'],
+            enum: ['active', 'inactive', 'on_leave', 'on_break'],
             default: 'active',
         },
         dateOfBirth: {
