@@ -34,6 +34,10 @@ export async function POST(request: NextRequest) {
                 endLongitude: startLongitude, // Assuming same longitude for end location
                 status,
             });
+            if (status === "on_leave") {
+                user.status = "on_leave"; // Update user status to on_leave
+                await user.save();
+            }
             return NextResponse.json({ message: "Attendance marked as " + status, status }, { status: 201 });
         }
         const attendance = await Attendance.create({
@@ -43,7 +47,7 @@ export async function POST(request: NextRequest) {
             loginTime, // Adjusting for timezone
             startLatitude,
             startLongitude,
-            status: status || "present",
+            status: "present",
         })
 
         if (!attendance) {
