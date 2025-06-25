@@ -83,11 +83,11 @@ export default function AttendancePage() {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);  // Fetch current user and today's attendance
+  }, []); // Fetch current user and today's attendance
   useEffect(() => {
     fetchCurrentUser();
     getCurrentLocation();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const fetchCurrentUser = async () => {
     try {
@@ -173,6 +173,7 @@ export default function AttendancePage() {
       if (response.ok) {
         toast.success("Login attendance marked successfully!");
         await fetchTodayAttendance(user._id);
+        await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to mark login attendance");
       }
@@ -210,6 +211,7 @@ export default function AttendancePage() {
       if (response.ok) {
         toast.success("Logout attendance marked successfully!");
         await fetchTodayAttendance(user._id);
+        await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to mark logout attendance");
       }
@@ -245,6 +247,7 @@ export default function AttendancePage() {
       if (response.ok) {
         toast.success("Break started successfully!");
         await fetchTodayAttendance(user._id);
+        await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to start break");
       }
@@ -280,6 +283,7 @@ export default function AttendancePage() {
       if (response.ok) {
         toast.success("Break ended successfully!");
         await fetchTodayAttendance(user._id);
+        await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to end break");
       }
@@ -439,7 +443,7 @@ export default function AttendancePage() {
   const isLoggedOut: boolean = !!(
     todayAttendance && todayAttendance.logoutTime
   );
-  const isOnBreak = todayAttendance && todayAttendance.status === "on_break";
+  const isOnBreak = todayAttendance && user.status === "on_break";
   const hasAttendanceToday = todayAttendance !== null;
   const isLeaveOrAbsent: boolean = !!(
     todayAttendance &&
@@ -498,7 +502,7 @@ export default function AttendancePage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Current Status:</span>
-                {getStatusBadge(todayAttendance.status)}
+                {getStatusBadge(user.status)}
               </div>
 
               {todayAttendance.loginTime && (
