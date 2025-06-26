@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +19,8 @@ import { User, Mail, MapPin, Save, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import EmployeeIdCard from "@/components/EmployeeIdCard";
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
 
 interface User {
   _id: string;
@@ -21,7 +29,7 @@ interface User {
   lastName: string;
   email: string;
   phone: string;
-  role: 'admin' | 'employee';
+  role: "admin" | "employee";
   designation: string;
   department?: string;
   level?: string;
@@ -38,7 +46,7 @@ interface User {
 }
 
 export default function UnifiedProfile() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [formData, setFormData] = useState({
@@ -55,43 +63,34 @@ export default function UnifiedProfile() {
     designation: "",
   });
   const router = useRouter();
+  const userDetails = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/current-user");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          setFormData({
-            firstName: data.user.firstName || "",
-            lastName: data.user.lastName || "",
-            email: data.user.email || "",
-            phone: data.user.phone || "",
-            age: data.user.age || "",
-            address: data.user.address || "",
-            city: data.user.city || "",
-            state: data.user.state || "",
-            country: data.user.country || "",
-            zip: data.user.zip || "",
-            designation: data.user.designation || "",
-          });
-        } else {
-          router.push("/signin");
-        }
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-        router.push("/signin");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchUser();
+    setLoading(true);
+    if (userDetails) {
+      setUser(userDetails);
+      setFormData({
+        firstName: userDetails.firstName || "",
+        lastName: userDetails.lastName || "",
+        email: userDetails.email || "",
+        phone: userDetails.phone || "",
+        age: userDetails.age || "",
+        address: userDetails.address || "",
+        city: userDetails.city || "",
+        state: userDetails.state || "",
+        country: userDetails.country || "",
+        zip: userDetails.zip || "",
+        designation: userDetails.designation || "",
+      });
+    }
+    setLoading(false);
   }, [router]);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -104,12 +103,16 @@ export default function UnifiedProfile() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (response.ok) {
         setUser(data.user);
+        if (updateUser) {
+          updateUser(data.user);
+        }
         toast.success("Profile updated successfully!");
       } else {
         toast.error(data.error || "Failed to update profile");
@@ -123,10 +126,10 @@ export default function UnifiedProfile() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -162,7 +165,8 @@ export default function UnifiedProfile() {
       <div className="flex items-center space-x-4">
         <Avatar className="h-16 w-16">
           <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xl font-bold">
-            {user.firstName?.[0]}{user.lastName?.[0]}
+            {user.firstName?.[0]}
+            {user.lastName?.[0]}
           </AvatarFallback>
         </Avatar>
         <div>
@@ -170,14 +174,18 @@ export default function UnifiedProfile() {
             {user.firstName} {user.lastName}
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            {user.designation} • {user.department || 'No Department'}
+            {user.designation} • {user.department || "No Department"}
           </p>
           <div className="flex items-center space-x-2 mt-2">
-            <Badge 
-              variant={user.role === 'admin' ? 'default' : 'secondary'}
-              className={user.role === 'admin' ? 'bg-indigo-100 text-indigo-800' : 'bg-green-100 text-green-800'}
+            <Badge
+              variant={user.role === "admin" ? "default" : "secondary"}
+              className={
+                user.role === "admin"
+                  ? "bg-indigo-100 text-indigo-800"
+                  : "bg-green-100 text-green-800"
+              }
             >
-              {user.role === 'admin' ? (
+              {user.role === "admin" ? (
                 <>
                   <Shield className="h-3 w-3 mr-1" />
                   Administrator
@@ -189,9 +197,11 @@ export default function UnifiedProfile() {
                 </>
               )}
             </Badge>
-            <Badge 
-              variant={user.status === 'active' ? 'default' : 'secondary'}
-              className={user.status === 'active' ? 'bg-green-100 text-green-800' : ''}
+            <Badge
+              variant={user.status === "active" ? "default" : "secondary"}
+              className={
+                user.status === "active" ? "bg-green-100 text-green-800" : ""
+              }
             >
               {user.status}
             </Badge>
@@ -207,35 +217,57 @@ export default function UnifiedProfile() {
               <User className="h-5 w-5 mr-2 text-indigo-600" />
               User Information
             </CardTitle>
-            <CardDescription>Your account details and system information</CardDescription>
+            <CardDescription>
+              Your account details and system information
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div>
-                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Username</Label>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">{user.username}</p>
+                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Username
+                </Label>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {user.username}
+                </p>
               </div>
               <Separator />
               <div>
-                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Employee ID</Label>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">#{user._id.slice(-8).toUpperCase()}</p>
+                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Employee ID
+                </Label>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  #{(user._id as string).slice(-8).toUpperCase()}
+                </p>
               </div>
               <Separator />
               <div>
-                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Role</Label>
-                <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">{user.role}</p>
+                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Role
+                </Label>
+                <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                  {user.role}
+                </p>
               </div>
               <Separator />
               <div>
-                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</Label>
-                <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">{user.status}</p>
+                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Status
+                </Label>
+                <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                  {user.status}
+                </p>
               </div>
               {user.department && (
                 <>
                   <Separator />
                   <div>
-                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Department</Label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.department}</p>
+                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Department
+                    </Label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {user.department}
+                    </p>
                   </div>
                 </>
               )}
@@ -243,22 +275,34 @@ export default function UnifiedProfile() {
                 <>
                   <Separator />
                   <div>
-                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Level</Label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{user.level}</p>
+                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Level
+                    </Label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {user.level}
+                    </p>
                   </div>
                 </>
               )}
               <Separator />
               <div>
-                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Member Since</Label>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">{formatDate(user.createdAt)}</p>
+                <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Member Since
+                </Label>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {formatDate(user.createdAt as string)}
+                </p>
               </div>
               {user.dateOfJoining && (
                 <>
                   <Separator />
                   <div>
-                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date of Joining</Label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{formatDate(user.dateOfJoining)}</p>
+                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Date of Joining
+                    </Label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {formatDate(user.dateOfJoining)}
+                    </p>
                   </div>
                 </>
               )}
@@ -274,13 +318,17 @@ export default function UnifiedProfile() {
                 <Mail className="h-5 w-5 mr-2 text-green-600" />
                 Edit Profile
               </CardTitle>
-              <CardDescription>Update your personal information and contact details</CardDescription>
+              <CardDescription>
+                Update your personal information and contact details
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    Personal Information
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
@@ -444,7 +492,8 @@ export default function UnifiedProfile() {
                         Save Changes
                       </>
                     )}
-                  </Button>                </div>
+                  </Button>{" "}
+                </div>
               </form>
             </CardContent>
           </Card>

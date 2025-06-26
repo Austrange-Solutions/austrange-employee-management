@@ -42,6 +42,8 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
+import formatTime from "@/helpers/formatTime";
+import formatDuration from "@/helpers/formatDuration";
 
 interface User {
   _id: string;
@@ -160,16 +162,6 @@ export default function AttendanceHistoryPage() {
     }
   };
 
-  const formatTime = (timestamp: string | number) => {
-    if (!timestamp) return "-";
-    return new Date(timestamp).toLocaleString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Kolkata", // Adjust to your timezone
-    });
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -177,18 +169,6 @@ export default function AttendanceHistoryPage() {
       day: "numeric",
       year: "numeric",
     });
-  };
-
-  const formatDuration = (milliseconds: number) => {
-    if (!milliseconds) return "-";
-    const minutes = Math.floor(milliseconds / (1000 * 60));
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${remainingMinutes}m`;
-    }
-    return `${remainingMinutes}m`;
   };
 
   const calculateWorkingHours = (record: AttendanceRecord) => {

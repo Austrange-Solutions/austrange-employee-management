@@ -27,7 +27,7 @@ type TUser = {
     profilePicture?: string; // Optional field for profile picture
     bloodGroup?: string; // Optional field for blood group
     workingHours?: string; // Optional field for working hours
-    status?: "active" | "inactive" | "on_leave" | "on_break" | "absent" | "present"; // Optional field for status, e.g., 'active', 'inactive'
+    status: "active" | "inactive" | "on_leave" | "on_break"; // Optional field for status, e.g., 'active', 'inactive'
     resetPasswordToken?: string; // Optional field for password reset token
     resetPasswordExpires?: Date; // Optional field for password reset expiry
     createdAt?: Date | string; // Optional field for creation

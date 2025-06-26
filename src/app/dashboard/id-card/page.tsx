@@ -3,51 +3,40 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ArrowLeft, Share2, Mail } from "lucide-react";
 import Link from "next/link";
 import EmployeeIdCard from "@/components/EmployeeIdCard";
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  role: "admin" | "employee";
-  designation: string;
-  department?: string;
-  level?: string;
-  status: string;
-  dateOfJoining?: string;
-  employeeId?: string;
-  address?: string;
-  emergencyContact?: string;
-}
+import { TUser } from "@/models/user.model";
+import useAuthStore from "@/store/authSlice";
 
 export default function IdCardPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
+  const userDetails = useAuthStore((state) => state.user);
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/current-user");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        } else {
-          router.push("/signin");
+        if (!userDetails) {
+          router.replace("/signin");
+          return;
         }
+        setUser(userDetails);
       } catch (error) {
         console.error("Error fetching current user:", error);
-        router.push("/signin");
+        router.replace("/signin");
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchUser();
   }, [router]);
 
@@ -59,16 +48,16 @@ export default function IdCardPage() {
 Please find my employee identification card details below:
 
 Name: ${user.firstName} ${user.lastName}
-Employee ID: ${user.employeeId || `EMP${(user.firstName.substring(0, 2) + user.lastName.substring(0, 2)).toUpperCase()}${user._id.substring(user._id.length - 4)}`}
+Employee ID: ${user._id ? String(user._id) : `EMP${(user.firstName.substring(0, 2) + user.lastName.substring(0, 2)).toUpperCase()}${String(user._id).substring(String(user._id).length - 4)}`}
 Designation: ${user.designation}
-Department: ${user.department || 'Not specified'}
+Department: ${user.department || "Not specified"}
 Email: ${user.email}
 
 This email serves as a digital copy of my employee identification.
 
 Best regards,
 ${user.firstName} ${user.lastName}`;
-      
+
       window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
   };
@@ -107,14 +96,18 @@ ${user.firstName} ${user.lastName}`;
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Employee ID Card</h1>
-            <p className="text-gray-600 mt-1">Your official employee identification card</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Employee ID Card
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Your official employee identification card
+            </p>
           </div>
         </div>
-        
+
         <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={handleEmailIdCard}
             className="flex items-center space-x-2"
@@ -122,15 +115,15 @@ ${user.firstName} ${user.lastName}`;
             <Mail className="h-4 w-4" />
             <span>Email</span>
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
-                  title: 'Employee ID Card',
+                  title: "Employee ID Card",
                   text: `${user.firstName} ${user.lastName} - Employee ID Card`,
-                  url: window.location.href
+                  url: window.location.href,
                 });
               }
             }}
@@ -154,27 +147,32 @@ ${user.firstName} ${user.lastName}`;
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">How to Use</CardTitle>
-              <CardDescription>Instructions for your employee ID card</CardDescription>
+              <CardDescription>
+                Instructions for your employee ID card
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <h4 className="font-medium text-sm mb-2">Digital Access</h4>
                 <p className="text-sm text-gray-600">
-                  Use this digital ID for online verification and virtual meetings.
+                  Use this digital ID for online verification and virtual
+                  meetings.
                 </p>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-sm mb-2">Printing</h4>
                 <p className="text-sm text-gray-600">
-                  Click the print button to create a physical copy. Print on quality cardstock for best results.
+                  Click the print button to create a physical copy. Print on
+                  quality cardstock for best results.
                 </p>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-sm mb-2">Security</h4>
                 <p className="text-sm text-gray-600">
-                  Keep your employee ID secure. Report any lost or stolen cards to HR immediately.
+                  Keep your employee ID secure. Report any lost or stolen cards
+                  to HR immediately.
                 </p>
               </div>
             </CardContent>
@@ -191,19 +189,19 @@ ${user.firstName} ${user.lastName}`;
                   Update Profile Information
                 </Button>
               </Link>
-              
+
               <Link href="/dashboard/change-password" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   Change Password
                 </Button>
               </Link>
-              
+
               <Link href="/dashboard/attendance" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   Mark Attendance
                 </Button>
               </Link>
-              
+
               <Link href="/dashboard" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   Go to Dashboard
@@ -220,41 +218,47 @@ ${user.firstName} ${user.lastName}`;
             <CardContent className="space-y-3">
               <div className="text-sm">
                 <span className="font-medium text-gray-500">Full Name:</span>
-                <p className="text-gray-900">{user.firstName} {user.lastName}</p>
+                <p className="text-gray-900">
+                  {user.firstName} {user.lastName}
+                </p>
               </div>
-              
+
               <div className="text-sm">
                 <span className="font-medium text-gray-500">Employee ID:</span>
                 <p className="text-gray-900 font-mono">
-                  {user.employeeId || `EMP${(user.firstName.substring(0, 2) + user.lastName.substring(0, 2)).toUpperCase()}${user._id.substring(user._id.length - 4)}`}
+                  {user._id
+                    ? String(user._id)
+                    : `EMP${(user.firstName.substring(0, 2) + user.lastName.substring(0, 2)).toUpperCase()}${String(user._id).substring(String(user._id).length - 4)}`}
                 </p>
               </div>
-              
+
               <div className="text-sm">
                 <span className="font-medium text-gray-500">Designation:</span>
                 <p className="text-gray-900">{user.designation}</p>
               </div>
-              
+
               {user.department && (
                 <div className="text-sm">
                   <span className="font-medium text-gray-500">Department:</span>
                   <p className="text-gray-900">{user.department}</p>
                 </div>
               )}
-              
+
               <div className="text-sm">
                 <span className="font-medium text-gray-500">Status:</span>
                 <p className="text-gray-900 capitalize">{user.status}</p>
               </div>
-              
+
               {user.dateOfJoining && (
                 <div className="text-sm">
-                  <span className="font-medium text-gray-500">Date of Joining:</span>
+                  <span className="font-medium text-gray-500">
+                    Date of Joining:
+                  </span>
                   <p className="text-gray-900">
-                    {new Date(user.dateOfJoining).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
+                    {new Date(user.dateOfJoining).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </p>
                 </div>

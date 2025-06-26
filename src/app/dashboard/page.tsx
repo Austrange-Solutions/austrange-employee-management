@@ -2,24 +2,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Users, 
-  UserPlus, 
-  Building2, 
-  TrendingUp, 
-  Calendar, 
-  Clock, 
+import {
+  Users,
+  UserPlus,
+  Building2,
+  TrendingUp,
+  Calendar,
+  Clock,
   User,
   Settings,
   Key,
   Activity,
-  CreditCard
+  CreditCard,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
 
 interface User {
   _id: string;
@@ -27,7 +35,7 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'admin' | 'employee';
+  role: "admin" | "employee";
   designation: string;
   department?: string;
   level?: string;
@@ -46,39 +54,53 @@ interface DashboardStats {
 }
 
 export default function UnifiedDashboard() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalEmployees: 0,
     activeEmployees: 0,
     inactiveEmployees: 0,
     onLeaveEmployees: 0,
     departments: {},
-    recentEmployees: []
+    recentEmployees: [],
   });
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const userDetails = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/current-user");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        } else {
-          router.push("/signin");
+        if (!isAuthenticated) {
+          const response = await fetch("/api/current-user");
+          if (response.ok) {
+            const data = await response.json();
+            if (data.user) {
+              setUser(data.user);
+              if (updateUser) {
+                updateUser(data.user);
+              }
+            } else {
+              router.replace("/signin");
+              return;
+            }
+          }
+        }
+        if (userDetails) {
+          setUser(userDetails);
         }
       } catch (error) {
         console.error("Error fetching current user:", error);
-        router.push("/signin");
+        router.replace("/signin");
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchUser();
   }, [router]);
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === "admin") {
       fetchDashboardStats();
     }
   }, [user]);
@@ -89,22 +111,31 @@ export default function UnifiedDashboard() {
       if (response.ok) {
         const data = await response.json();
         const employees = data.employees?.docs || [];
-        
+
         // Calculate stats
-        const activeCount = employees.filter((emp: any) => emp.status === 'active').length;
-        const inactiveCount = employees.filter((emp: any) => emp.status === 'inactive').length;
-        const onLeaveCount = employees.filter((emp: any) => emp.status === 'on_leave').length;
-        
+        const activeCount = employees.filter(
+          (emp: any) => emp.status === "active"
+        ).length;
+        const inactiveCount = employees.filter(
+          (emp: any) => emp.status === "inactive"
+        ).length;
+        const onLeaveCount = employees.filter(
+          (emp: any) => emp.status === "on_leave"
+        ).length;
+
         // Department breakdown
         const deptBreakdown: { [key: string]: number } = {};
         employees.forEach((emp: any) => {
-          const dept = emp.department || 'Unassigned';
+          const dept = emp.department || "Unassigned";
           deptBreakdown[dept] = (deptBreakdown[dept] || 0) + 1;
         });
 
         // Recent employees (last 5)
         const recent = employees
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
           .slice(0, 5);
 
         setStats({
@@ -113,7 +144,7 @@ export default function UnifiedDashboard() {
           inactiveEmployees: inactiveCount,
           onLeaveEmployees: onLeaveCount,
           departments: deptBreakdown,
-          recentEmployees: recent
+          recentEmployees: recent,
         });
       }
     } catch (error) {
@@ -122,10 +153,10 @@ export default function UnifiedDashboard() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -140,11 +171,11 @@ export default function UnifiedDashboard() {
       return `${diffDays} days`;
     } else if (diffDays < 365) {
       const months = Math.floor(diffDays / 30);
-      return `${months} month${months > 1 ? 's' : ''}`;
+      return `${months} month${months > 1 ? "s" : ""}`;
     } else {
       const years = Math.floor(diffDays / 365);
       const remainingMonths = Math.floor((diffDays % 365) / 30);
-      return `${years} year${years > 1 ? 's' : ''} ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
+      return `${years} year${years > 1 ? "s" : ""} ${remainingMonths} month${remainingMonths > 1 ? "s" : ""}`;
     }
   };
 
@@ -187,13 +218,13 @@ export default function UnifiedDashboard() {
             Welcome back, {user.firstName}!
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            {user.role === 'admin' 
-              ? "Here's what's happening with your team." 
+            {user.role === "admin"
+              ? "Here's what's happening with your team."
               : "Here's your personal dashboard overview."}
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-2">
-          {user.role === 'admin' && (
+          {user.role === "admin" && (
             <Link href="/dashboard/employees/add">
               <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
                 <UserPlus className="h-4 w-4 mr-2" />
@@ -211,12 +242,14 @@ export default function UnifiedDashboard() {
       </div>
 
       {/* Role-specific Stats Cards */}
-      {user.role === 'admin' ? (
+      {user.role === "admin" ? (
         // Admin Dashboard - Company Stats
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Employees
+              </CardTitle>
               <Users className="h-4 w-4" />
             </CardHeader>
             <CardContent>
@@ -227,7 +260,9 @@ export default function UnifiedDashboard() {
 
           <Card className="border-0 shadow-lg bg-gradient-to-r from-green-500 to-green-600 text-white">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Employees</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Employees
+              </CardTitle>
               <TrendingUp className="h-4 w-4" />
             </CardHeader>
             <CardContent>
@@ -253,7 +288,9 @@ export default function UnifiedDashboard() {
               <Building2 className="h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{Object.keys(stats.departments).length}</div>
+              <div className="text-2xl font-bold">
+                {Object.keys(stats.departments).length}
+              </div>
               <p className="text-xs text-purple-100">Active departments</p>
             </CardContent>
           </Card>
@@ -267,7 +304,9 @@ export default function UnifiedDashboard() {
               <User className="h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold truncate">#{user._id.slice(-8).toUpperCase()}</div>
+              <div className="text-lg font-bold truncate">
+                #{user._id && (user?._id as string).slice(-8).toUpperCase()}
+              </div>
               <p className="text-xs text-indigo-100">Your unique ID</p>
             </CardContent>
           </Card>
@@ -278,7 +317,9 @@ export default function UnifiedDashboard() {
               <Building2 className="h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold">{user.department || 'Unassigned'}</div>
+              <div className="text-lg font-bold">
+                {user.department || "Unassigned"}
+              </div>
               <p className="text-xs text-green-100">Your department</p>
             </CardContent>
           </Card>
@@ -300,7 +341,11 @@ export default function UnifiedDashboard() {
               <Clock className="h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold">{calculateTenure(user.dateOfJoining || user.createdAt)}</div>
+              <div className="text-lg font-bold">
+                {calculateTenure(
+                  (user.dateOfJoining as string) || (user.createdAt as string)
+                )}
+              </div>
               <p className="text-xs text-purple-100">Time with company</p>
             </CardContent>
           </Card>
@@ -309,7 +354,7 @@ export default function UnifiedDashboard() {
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {user.role === 'admin' ? (
+        {user.role === "admin" ? (
           // Admin-specific content
           <>
             {/* Department Breakdown */}
@@ -319,12 +364,17 @@ export default function UnifiedDashboard() {
                   <Building2 className="h-5 w-5 mr-2 text-indigo-600" />
                   Department Breakdown
                 </CardTitle>
-                <CardDescription>Employee distribution across departments</CardDescription>
+                <CardDescription>
+                  Employee distribution across departments
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {Object.entries(stats.departments).map(([dept, count]) => (
-                    <div key={dept} className="flex items-center justify-between">
+                    <div
+                      key={dept}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
@@ -334,13 +384,18 @@ export default function UnifiedDashboard() {
                       <div className="flex items-center space-x-2">
                         <Badge variant="secondary">{count}</Badge>
                         <span className="text-xs text-gray-500">
-                          {stats.totalEmployees > 0 ? Math.round((count / stats.totalEmployees) * 100) : 0}%
+                          {stats.totalEmployees > 0
+                            ? Math.round((count / stats.totalEmployees) * 100)
+                            : 0}
+                          %
                         </span>
                       </div>
                     </div>
                   ))}
                   {Object.keys(stats.departments).length === 0 && (
-                    <p className="text-gray-500 text-center py-4">No departments found</p>
+                    <p className="text-gray-500 text-center py-4">
+                      No departments found
+                    </p>
                   )}
                 </div>
               </CardContent>
@@ -358,11 +413,15 @@ export default function UnifiedDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   {stats.recentEmployees.map((employee) => (
-                    <div key={employee._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div
+                      key={employee._id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                            {employee.firstName?.[0]}{employee.lastName?.[0]}
+                            {employee.firstName?.[0]}
+                            {employee.lastName?.[0]}
                           </span>
                         </div>
                         <div>
@@ -375,9 +434,17 @@ export default function UnifiedDashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge 
-                          variant={employee.status === 'active' ? 'default' : 'secondary'}
-                          className={employee.status === 'active' ? 'bg-green-100 text-green-800' : ''}
+                        <Badge
+                          variant={
+                            employee.status === "active"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className={
+                            employee.status === "active"
+                              ? "bg-green-100 text-green-800"
+                              : ""
+                          }
                         >
                           {employee.status}
                         </Badge>
@@ -388,7 +455,9 @@ export default function UnifiedDashboard() {
                     </div>
                   ))}
                   {stats.recentEmployees.length === 0 && (
-                    <p className="text-gray-500 text-center py-4">No recent employees</p>
+                    <p className="text-gray-500 text-center py-4">
+                      No recent employees
+                    </p>
                   )}
                 </div>
                 {stats.recentEmployees.length > 0 && (
@@ -419,7 +488,9 @@ export default function UnifiedDashboard() {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Full Name</span>
-                    <span className="text-sm font-medium">{user.firstName} {user.lastName}</span>
+                    <span className="text-sm font-medium">
+                      {user.firstName} {user.lastName}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Email</span>
@@ -460,21 +531,29 @@ export default function UnifiedDashboard() {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Designation</span>
-                    <span className="text-sm font-medium">{user.designation}</span>
+                    <span className="text-sm font-medium">
+                      {user.designation}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Department</span>
-                    <span className="text-sm font-medium">{user.department || 'Not assigned'}</span>
+                    <span className="text-sm font-medium">
+                      {user.department || "Not assigned"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Level</span>
-                    <span className="text-sm font-medium">{user.level || 'Not assigned'}</span>
+                    <span className="text-sm font-medium">
+                      {user.level || "Not assigned"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Status</span>
-                    <Badge 
-                      variant={user.status === 'active' ? 'default' : 'secondary'}
-                      className={`text-xs ${user.status === 'active' ? 'bg-green-100 text-green-800' : ''}`}
+                    <Badge
+                      variant={
+                        user.status === "active" ? "default" : "secondary"
+                      }
+                      className={`text-xs ${user.status === "active" ? "bg-green-100 text-green-800" : ""}`}
                     >
                       {user.status}
                     </Badge>
@@ -499,57 +578,86 @@ export default function UnifiedDashboard() {
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>
-            {user.role === 'admin' ? 'Common administrative tasks' : 'Common tasks and shortcuts'}
+            {user.role === "admin"
+              ? "Common administrative tasks"
+              : "Common tasks and shortcuts"}
           </CardDescription>
         </CardHeader>
-        <CardContent>          {user.role === 'admin' ? (
+        <CardContent>
+          {" "}
+          {user.role === "admin" ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link href="/dashboard/employees/add">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <UserPlus className="h-5 w-5" />
                   <span className="text-sm">Add Employee</span>
                 </Button>
               </Link>
               <Link href="/dashboard/employees">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <Users className="h-5 w-5" />
                   <span className="text-sm">Manage Employees</span>
                 </Button>
               </Link>
               <Link href="/dashboard/attendance">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <Clock className="h-5 w-5" />
                   <span className="text-sm">Attendance</span>
                 </Button>
               </Link>
               <Link href="/dashboard/admin-settings">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <Settings className="h-5 w-5" />
                   <span className="text-sm">Admin Settings</span>
                 </Button>
               </Link>
-            </div>          ) : (
+            </div>
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link href="/dashboard/attendance">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <Clock className="h-5 w-5" />
                   <span className="text-sm">Mark Attendance</span>
                 </Button>
               </Link>
               <Link href="/dashboard/id-card">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <CreditCard className="h-5 w-5" />
                   <span className="text-sm">ID Card</span>
                 </Button>
               </Link>
               <Link href="/dashboard/attendance/history">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <Activity className="h-5 w-5" />
                   <span className="text-sm">Attendance History</span>
                 </Button>
               </Link>
               <Link href="/dashboard/profile">
-                <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-16 flex flex-col items-center justify-center space-y-2"
+                >
                   <User className="h-5 w-5" />
                   <span className="text-sm">Update Profile</span>
                 </Button>

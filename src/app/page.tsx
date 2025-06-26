@@ -1,16 +1,39 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, UserCheck, Building2, Shield } from "lucide-react";
 import Link from "next/link";
-
+import { useEffect } from "react";
+import useAuthStore from "@/store/authSlice";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 export default function Home() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const updateUser = useAuthStore((state) => state.updateUser);
+  const router = useRouter();
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+      return;
+    }
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/current-user");
+        const data = await response.json();
+        if (response.ok) {
+          if (!isAuthenticated && data.user && updateUser) {
+            updateUser(data.user);
+          }
+          router.replace("/dashboard");
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast.error("Failed to fetch user data. Please try again.");
+      }
+    };
+    fetchUser();
+  }, [isAuthenticated, updateUser, router]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
       <div className="container mx-auto px-4 py-8">

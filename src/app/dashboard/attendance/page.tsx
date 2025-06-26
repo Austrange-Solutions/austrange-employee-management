@@ -27,6 +27,10 @@ import {
   Timer,
   User,
 } from "lucide-react";
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
+import formatTime from "@/helpers/formatTime";
+import formatDuration from "@/helpers/formatDuration";
 
 interface User {
   _id: string;
@@ -66,7 +70,7 @@ interface AttendanceRecord {
 
 export default function AttendancePage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [todayAttendance, setTodayAttendance] =
     useState<AttendanceRecord | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,7 +80,7 @@ export default function AttendancePage() {
     longitude: number;
   } | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
-
+  const updateUser = useAuthStore((state) => state.updateUser);
   // Update current time every second
   useEffect(() => {
     const timer = setInterval(() => {
@@ -95,6 +99,9 @@ export default function AttendancePage() {
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
+        if (updateUser) {
+          updateUser(data.user);
+        }
         await fetchTodayAttendance(data.user._id);
       } else {
         router.push("/signin");
@@ -172,7 +179,7 @@ export default function AttendancePage() {
       const data = await response.json();
       if (response.ok) {
         toast.success("Login attendance marked successfully!");
-        await fetchTodayAttendance(user._id);
+        await fetchTodayAttendance(user._id as string);
         await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to mark login attendance");
@@ -210,7 +217,7 @@ export default function AttendancePage() {
       const data = await response.json();
       if (response.ok) {
         toast.success("Logout attendance marked successfully!");
-        await fetchTodayAttendance(user._id);
+        await fetchTodayAttendance(user._id as string);
         await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to mark logout attendance");
@@ -246,7 +253,7 @@ export default function AttendancePage() {
       const data = await response.json();
       if (response.ok) {
         toast.success("Break started successfully!");
-        await fetchTodayAttendance(user._id);
+        await fetchTodayAttendance(user._id as string);
         await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to start break");
@@ -282,7 +289,7 @@ export default function AttendancePage() {
       const data = await response.json();
       if (response.ok) {
         toast.success("Break ended successfully!");
-        await fetchTodayAttendance(user._id);
+        await fetchTodayAttendance(user._id as string);
         await fetchCurrentUser(); // Refresh user data
       } else {
         toast.error(data.error || "Failed to end break");
@@ -321,7 +328,7 @@ export default function AttendancePage() {
       const data = await response.json();
       if (response.ok) {
         toast.success("Leave marked successfully!");
-        await fetchTodayAttendance(user._id);
+        await fetchTodayAttendance(user._id as string);
       } else {
         toast.error(data.error || "Failed to mark leave");
       }
@@ -359,7 +366,7 @@ export default function AttendancePage() {
       const data = await response.json();
       if (response.ok) {
         toast.success("Absent status marked successfully!");
-        await fetchTodayAttendance(user._id);
+        await fetchTodayAttendance(user._id as string);
       } else {
         toast.error(data.error || "Failed to mark absent");
       }
@@ -369,25 +376,6 @@ export default function AttendancePage() {
     } finally {
       setActionLoading(false);
     }
-  };
-
-  const formatTime = (timestamp: string | number) => {
-    return new Date(timestamp).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const formatDuration = (milliseconds: number) => {
-    const minutes = Math.floor(milliseconds / (1000 * 60));
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${remainingMinutes}m`;
-    }
-    return `${remainingMinutes}m`;
   };
 
   const getStatusBadge = (status: string) => {
@@ -482,7 +470,7 @@ export default function AttendancePage() {
             Today&lsquo;s Status
           </CardTitle>
           <CardDescription>
-            {new Date().toLocaleDateString("en-US", {
+            {new Date().toLocaleDateString("en-IN", {
               weekday: "long",
               year: "numeric",
               month: "long",
