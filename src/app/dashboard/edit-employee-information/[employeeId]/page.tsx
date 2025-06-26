@@ -40,41 +40,16 @@ import {
   type CreateEmployeeFormData,
 } from "@/schema/createEmployeeSchema";
 import { departments, levels } from "@/lib/constants";
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  age: number;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  zip: string;
-  dateOfBirth: string;
-  department: string;
-  department_code: string;
-  level: string;
-  level_code: string;
-  designation: string;
-  dateOfJoining: string;
-  username: string;
-  workingHours: string;
-  bloodGroup: string;
-  role: string;
-  status: string;
-  createdAt: string;
-}
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
 
 export default function EditEmployeePage() {
   const router = useRouter();
   const params = useParams();
   const employeeId = params.employeeId as string;
 
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [employee, setEmployee] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<TUser | null>(null);
+  const [employee, setEmployee] = useState<TUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -105,30 +80,14 @@ export default function EditEmployeePage() {
     status: "active",
     password: "", // Will be hidden in edit mode
   });
-
+  const userDetails = useAuthStore((state) => state.user);
   // Check admin authentication
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/current-user");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.user.role !== "admin") {
-            toast.error("Access denied. Admin privileges required.");
-            router.push("/dashboard");
-            return;
-          }
-          setCurrentUser(data.user);
-        } else {
-          router.push("/signin");
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        router.push("/signin");
-      }
-    };
-
-    checkAuth();
+    if (userDetails && userDetails.role !== "admin") {
+      toast.error("Access denied. Admin privileges required.");
+      router.push("/dashboard");
+    }
+    setCurrentUser(userDetails);
   }, [router]);
 
   // Fetch employee data
@@ -207,7 +166,6 @@ export default function EditEmployeePage() {
         ...validatedData,
         status: formData.status,
       };
-      console.log("Update Data:", updateData);
       const response = await fetch("/api/admin/update-employee-by-admin", {
         method: "PATCH",
         headers: {
@@ -237,7 +195,9 @@ export default function EditEmployeePage() {
           }
         });
         setErrors(fieldErrors);
-        toast.error(fieldErrors[Object.keys(fieldErrors)[0]] || "Validation error");
+        toast.error(
+          fieldErrors[Object.keys(fieldErrors)[0]] || "Validation error"
+        );
       } else {
         toast.error("Failed to update employee");
       }

@@ -18,20 +18,19 @@ import { Badge } from "@/components/ui/badge";
 import {
   Users,
   UserPlus,
-  Settings,
   LogOut,
   Home,
   Menu,
   X,
   User,
-  Building2,
-  CalendarDays,
   Key,
   Clock,
   History,
   CreditCard,
 } from "lucide-react";
 import Image from "next/image";
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
 
 interface User {
   _id: string;
@@ -48,7 +47,7 @@ interface User {
 // Function to get proper page title based on pathname
 const getPageTitle = (pathname: string | null): string => {
   if (!pathname) return "Dashboard";
-  
+
   // Handle specific route patterns
   if (pathname === "/dashboard") return "Dashboard";
   if (pathname === "/dashboard/employees") return "All Employees";
@@ -60,29 +59,39 @@ const getPageTitle = (pathname: string | null): string => {
   if (pathname === "/dashboard/change-password") return "Change Password";
   if (pathname === "/dashboard/departments") return "Departments";
   if (pathname === "/dashboard/reports") return "Reports";
-  if (pathname === "/dashboard/admin-settings") return "Admin Settings";
-  
+  // if (pathname === "/dashboard/admin-settings") return "Admin Settings";
+
   // Handle dynamic routes with IDs
-  if (pathname.includes("/dashboard/attendance/") && !pathname.endsWith("/history")) {
+  if (
+    pathname.includes("/dashboard/attendance/") &&
+    !pathname.endsWith("/history")
+  ) {
     return "Employee Attendance";
   }
-  if (pathname.includes("/dashboard/employees/") && !pathname.endsWith("/add")) {
+  if (
+    pathname.includes("/dashboard/employees/") &&
+    !pathname.endsWith("/add")
+  ) {
     return "Employee Details";
   }
-  
+
   // Fallback for other routes - take the last segment and format it
   const segments = pathname.split("/").filter(Boolean);
   const lastSegment = segments[segments.length - 1];
-  
+
   // Skip if it looks like an ID (long string with numbers/letters)
-  if (lastSegment && lastSegment.length > 10 && /^[a-f0-9]+$/i.test(lastSegment)) {
+  if (
+    lastSegment &&
+    lastSegment.length > 10 &&
+    /^[a-f0-9]+$/i.test(lastSegment)
+  ) {
     // Use the second-to-last segment instead
     const secondLast = segments[segments.length - 2];
     return secondLast
       ? secondLast.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
       : "Dashboard";
   }
-  
+
   return lastSegment
     ? lastSegment.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
     : "Dashboard";
@@ -93,28 +102,43 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const userDetails = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const updateUser = useAuthStore((state) => state.updateUser);
   // Skip auth check for signin/signup pages
   const isAuthPage =
-    pathname?.includes("/signin") || pathname?.includes("/signup");  useEffect(() => {
+    pathname?.includes("/signin") || pathname?.includes("/signup");
+  useEffect(() => {
     const checkAuthAsync = async () => {
       try {
-        const response = await fetch("/api/current-user");
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
+        if (!isAuthenticated) {
+          const response = await fetch("/api/current-user");
+          if (response.ok) {
+            const data = await response.json();
+            if (data.user) {
+              setUser(data.user);
+              if (updateUser) {
+                updateUser(data.user);
+              }
+            } else {
+              router.replace("/signin");
+              return;
+            }
+          }
         } else {
-          // Redirect to unified signin page
-          router.push("/signin");
+          if (userDetails) {
+            setUser(userDetails);
+          }
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        router.push("/signin");
+        router.replace("/signin");
       } finally {
         setLoading(false);
       }
@@ -130,16 +154,23 @@ export default function DashboardLayout({
   const handleLogout = async () => {
     try {
       await fetch("/api/logout", { method: "POST" });
-      router.push("/");
+      if (logout) {
+        logout();
+      }
+      router.replace("/signin");
     } catch (error) {
       console.error("Logout failed:", error);
     }
-  };  // Role-based navigation
+  }; // Role-based navigation
   const getNavigation = () => {
     const baseNavigation = [
       { name: "Dashboard", href: "/dashboard", icon: Home },
       { name: "Attendance", href: "/dashboard/attendance", icon: Clock },
-      { name: "Attendance History", href: "/dashboard/attendance/history", icon: History },
+      {
+        name: "Attendance History",
+        href: "/dashboard/attendance/history",
+        icon: History,
+      },
       { name: "ID Card", href: "/dashboard/id-card", icon: CreditCard },
       { name: "My Profile", href: "/dashboard/profile", icon: User },
       {
@@ -156,13 +187,6 @@ export default function DashboardLayout({
         name: "Add Employee",
         href: "/dashboard/employees/add",
         icon: UserPlus,
-      },
-      { name: "Departments", href: "/dashboard/departments", icon: Building2 },
-      { name: "Reports", href: "/dashboard/reports", icon: CalendarDays },
-      {
-        name: "Admin Settings",
-        href: "/dashboard/admin-settings",
-        icon: Settings,
       },
     ];
 
@@ -221,7 +245,8 @@ export default function DashboardLayout({
                 Austrange
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {String(user?.role.charAt(0).toUpperCase()) + String(user?.role.slice(1))}{" "}
+                {String(user?.role.charAt(0).toUpperCase()) +
+                  String(user?.role.slice(1))}{" "}
                 Portal
               </p>
             </div>
@@ -307,7 +332,8 @@ export default function DashboardLayout({
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />                  <DropdownMenuItem asChild>
+                  <DropdownMenuSeparator />{" "}
+                  <DropdownMenuItem asChild>
                     <Link href="/dashboard/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
@@ -320,7 +346,10 @@ export default function DashboardLayout({
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/attendance" className="cursor-pointer">
+                    <Link
+                      href="/dashboard/attendance"
+                      className="cursor-pointer"
+                    >
                       <Clock className="mr-2 h-4 w-4" />
                       <span>Attendance</span>
                     </Link>
@@ -334,7 +363,7 @@ export default function DashboardLayout({
                       <span>Change Password</span>
                     </Link>
                   </DropdownMenuItem>
-                  {user?.role === "admin" && (
+                  {/* {user?.role === "admin" && (
                     <DropdownMenuItem asChild>
                       <Link
                         href="/dashboard/admin-settings"
@@ -344,7 +373,7 @@ export default function DashboardLayout({
                         <span>Admin Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                  )}
+                  )} */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
@@ -373,7 +402,7 @@ function SidebarContent({
 }: {
   navigation: any[];
   pathname: string | null;
-  user: User | null;
+  user: TUser | null;
 }) {
   return (
     <>

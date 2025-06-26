@@ -16,26 +16,11 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import Image from "next/image";
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  role: "admin" | "employee";
-  designation: string;
-  department?: string;
-  level?: string;
-  status: string;
-  dateOfJoining?: string;
-  employeeId?: string;
-  address?: string;
-  emergencyContact?: string;
-}
+import { TUser } from "@/models/user.model";
+import formatDate from "@/helpers/formatDate";
 
 interface EmployeeIdCardProps {
-  user: User;
+  user: TUser;
   showActions?: boolean;
 }
 
@@ -46,14 +31,6 @@ export default function EmployeeIdCard({
   const [isFlipped, setIsFlipped] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Not specified";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
   const handlePrint = () => {
     // Temporarily reset to front side for printing
     const wasFlipped = isFlipped;
@@ -68,8 +45,8 @@ export default function EmployeeIdCard({
             <html>
               <head>
                 <title>Employee ID Card - ${user.firstName} ${
-            user.lastName
-          }</title>
+                  user.lastName
+                }</title>
                 <style>
                   * { margin: 0; padding: 0; box-sizing: border-box; }
                   body { 
@@ -312,7 +289,7 @@ export default function EmployeeIdCard({
                     <div class="info-row">
                       <div class="info-content">
                         <p class="info-label">Employee ID</p>
-                        <p class="info-value">${user._id.slice(-8).toLocaleUpperCase()}</p>
+                        <p class="info-value">${(user._id as string).slice(-8).toLocaleUpperCase()}</p>
                       </div>
                     </div>
 
@@ -333,7 +310,7 @@ export default function EmployeeIdCard({
                       <div class="info-content">
                         <p class="info-label">Joined</p>
                         <p class="info-value">${formatDate(
-                          user.dateOfJoining
+                          user.dateOfJoining as string
                         )}</p>
                       </div>
                     </div>
@@ -466,7 +443,7 @@ export default function EmployeeIdCard({
                   <div>
                     <p className="text-xs opacity-80">Employee ID</p>
                     <p className="font-semibold">
-                      {user._id.slice(-8).toLocaleUpperCase().toLocaleUpperCase()}
+                      {(user._id as string).slice(-8).toLocaleUpperCase()}
                     </p>
                   </div>
                 </div>
@@ -486,7 +463,7 @@ export default function EmployeeIdCard({
                   <div>
                     <p className="text-xs opacity-80">Joined</p>
                     <p className="font-semibold text-sm">
-                      {formatDate(user.dateOfJoining)}
+                      {formatDate(user.dateOfJoining as string)}
                     </p>
                   </div>
                 </div>
@@ -555,20 +532,6 @@ export default function EmployeeIdCard({
                         Address
                       </p>
                       <p className="text-sm text-gray-600">{user.address}</p>
-                    </div>
-                  </div>
-                )}
-
-                {user.emergencyContact && (
-                  <div className="flex items-start space-x-3">
-                    <Phone className="h-5 w-5 text-red-500 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-800">
-                        Emergency Contact
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {user.emergencyContact}
-                      </p>
                     </div>
                   </div>
                 )}

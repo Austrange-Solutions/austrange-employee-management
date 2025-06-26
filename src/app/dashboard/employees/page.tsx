@@ -24,6 +24,7 @@ import {
 import { departments, levels } from "@/lib/constants";
 import EmployeeTable from "@/components/EmployeeTable";
 import { Employee } from "@/schema/employeeSchema";
+import useAuthStore from "@/store/authSlice";
 
 interface User {
   role: "admin" | "employee";
@@ -38,7 +39,7 @@ export default function EmployeeManagement() {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [levelFilter, setLevelFilter] = useState("all");
   const router = useRouter();
-
+  const userDetails = useAuthStore((state) => state.user);
   useEffect(() => {
     checkAuthAndFetchData();
   }, []);
@@ -94,44 +95,26 @@ export default function EmployeeManagement() {
   const checkAuthAndFetchData = async () => {
     try {
       // Check if user is admin
-      const authResponse = await fetch("/api/current-user");
-      if (authResponse.ok) {
-        const authData = await authResponse.json();
-        setUser(authData.user);
-
-        if (authData.user.role !== "admin") {
-          toast.error("Access denied. Admin privileges required.");
-          router.push("/dashboard");
-          return;
-        }
-
-        // Fetch employees if user is admin
-        await fetchEmployees();
-      } else {
-        router.push("/signin");
+      setLoading(true);
+      if (userDetails) {
+        setUser(userDetails);
       }
+
+      if (userDetails && userDetails.role !== "admin") {
+        toast.error("Access denied. Admin privileges required.");
+        router.push("/dashboard");
+        return;
+      }
+
+      // Fetch employees if user is admin
+      await fetchEmployees();
     } catch (error) {
       console.error("Error checking auth:", error);
-      router.push("/signin");
+      router.replace("/signin");
     } finally {
       setLoading(false);
     }
   };
-
-  // const fetchEmployees = async () => {
-  //   try {
-  //     const response = await fetch("/api/admin/get-all-employees?limit=1000");
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setEmployees(data.employees?.docs || []);
-  //     } else {
-  //       toast.error("Failed to fetch employees");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching employees:", error);
-  //     toast.error("Network error. Please try again.");
-  //   }
-  // };
 
   const filteredEmployees = employees.filter((employee) => {
     const matchesSearch =
@@ -147,17 +130,6 @@ export default function EmployeeManagement() {
 
     return matchesSearch && matchesStatus;
   });
-
-  // if (loading) {
-  //   return (
-  //     <div className="p-6">
-  //       <div className="animate-pulse space-y-6">
-  //         <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-  //         <div className="h-64 bg-gray-200 rounded-lg"></div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   if (!user || user.role !== "admin") {
     return (

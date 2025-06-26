@@ -16,6 +16,7 @@ import { Shield, ArrowLeft, Eye, EyeOff, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import useAuthStore from "@/store/authSlice";
 
 export default function UnifiedSignIn() {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ export default function UnifiedSignIn() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
+  const updateUser = useAuthStore((state) => state.updateUser);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -43,11 +44,13 @@ export default function UnifiedSignIn() {
         toast.error(data.error || "Failed to sign in");
         return;
       }
-
+      if (updateUser) {
+        updateUser(data.user);
+      }
       toast.success("Welcome back! Redirecting to dashboard...");
-      
+
       // Redirect to unified dashboard regardless of role
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (error) {
       console.error("Sign-in failed:", error);
       toast.error("Network error. Please try again.");
@@ -91,7 +94,10 @@ export default function UnifiedSignIn() {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="identifier" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="identifier"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Username or Email
                 </Label>
                 <Input
@@ -107,7 +113,10 @@ export default function UnifiedSignIn() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Password
                 </Label>
                 <div className="relative">
@@ -140,11 +149,15 @@ export default function UnifiedSignIn() {
                 <div className="flex items-center justify-center space-x-6 text-sm">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                    <span className="text-gray-600 dark:text-gray-300">Admin Access</span>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      Admin Access
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-gray-600 dark:text-gray-300">Employee Access</span>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      Employee Access
+                    </span>
                   </div>
                 </div>
                 <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">

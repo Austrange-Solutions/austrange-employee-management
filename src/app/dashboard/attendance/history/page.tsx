@@ -6,12 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -42,14 +37,11 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
+import formatTime from "@/helpers/formatTime";
+import formatDuration from "@/helpers/formatDuration";
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
+import formatDate from "@/helpers/formatDate";
 
 interface AttendanceRecord {
   _id: string;
@@ -66,20 +58,14 @@ interface AttendanceRecord {
   endLatitude?: number;
   endLongitude?: number;
   workingHoursCompleted?: boolean;
-  status:
-    | "present"
-    | "absent"
-    | "on_leave"
-    | "on_break"
-    | "active"
-    | "inactive";
+  status: "present" | "absent" | "on_leave" | "on_break";
   createdAt: string;
   updatedAt: string;
 }
 
 export default function AttendanceHistoryPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [attendanceRecords, setAttendanceRecords] = useState<
     AttendanceRecord[]
   >([]);
@@ -91,7 +77,7 @@ export default function AttendanceHistoryPage() {
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [monthFilter, setMonthFilter] = useState("");
-
+  const userDetails = useAuthStore((state) => state.user);
   useEffect(() => {
     fetchCurrentUser();
   }, []);
@@ -104,12 +90,8 @@ export default function AttendanceHistoryPage() {
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await fetch("/api/current-user");
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
-        router.push("/signin");
+      if (userDetails) {
+        setUser(userDetails);
       }
     } catch (error) {
       console.error("Error fetching current user:", error);
@@ -125,7 +107,7 @@ export default function AttendanceHistoryPage() {
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        userId: user._id,
+        userId: user._id as string,
         page: currentPage.toString(),
         limit: "10",
       });
@@ -158,37 +140,6 @@ export default function AttendanceHistoryPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatTime = (timestamp: string | number) => {
-    if (!timestamp) return "-";
-    return new Date(timestamp).toLocaleString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Kolkata", // Adjust to your timezone
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const formatDuration = (milliseconds: number) => {
-    if (!milliseconds) return "-";
-    const minutes = Math.floor(milliseconds / (1000 * 60));
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${remainingMinutes}m`;
-    }
-    return `${remainingMinutes}m`;
   };
 
   const calculateWorkingHours = (record: AttendanceRecord) => {

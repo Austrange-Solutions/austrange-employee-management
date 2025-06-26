@@ -39,9 +39,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Convert to numeric timestamps if they aren't already
-        const endTimeValue = typeof breakEndTime === 'number' ? breakEndTime : new Date(breakEndTime).getTime();
         const startTimeValue = typeof attendanceRecord.breakStartTime === 'number' ? attendanceRecord.breakStartTime : new Date(attendanceRecord.breakStartTime).getTime();
-        console.log(typeof breakEndTime, "Break End Time:", breakEndTime, "End time value:", endTimeValue, "Break Start Time:", startTimeValue);
         const breakDuration = parseInt(breakEndTime) - startTimeValue;
         if (breakDuration <= 0) {
             return NextResponse.json({

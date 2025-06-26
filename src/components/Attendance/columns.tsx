@@ -164,7 +164,6 @@ export const columns: ColumnDef<Attendance>[] = [
     cell: ({ row }) => {
       const lat = row.getValue("startLatitude") as number;
       const lng = row.original.startLongitude as number;
-      console.log("Location:", lat, lng);
       if (!lat || !lng)
         return <span className="text-gray-400">No location</span>;
 
@@ -188,7 +187,6 @@ export const columns: ColumnDef<Attendance>[] = [
     cell: ({ row }) => {
       const lat = row.getValue("endLatitude") as number;
       const lng = row.original.endLongitude as number;
-      console.log("Location:", lat, lng);
       if (!lat || !lng)
         return <span className="text-gray-400">No location</span>;
 

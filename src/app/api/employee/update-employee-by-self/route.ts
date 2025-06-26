@@ -47,7 +47,7 @@ export async function PATCH(request: NextRequest) {
         // Return user without password
         const userObj = user.toObject();
         const { password, ...userWithoutPassword } = userObj;
-        
+
         return NextResponse.json({
             message: "Profile updated successfully",
             user: userWithoutPassword

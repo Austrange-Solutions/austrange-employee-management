@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,18 +15,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Key, Eye, EyeOff, Shield, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: 'admin' | 'employee';
-  designation: string;
-}
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
 
 export default function ChangePassword() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -32,37 +31,37 @@ export default function ChangePassword() {
     confirmPassword: "",
   });
   const router = useRouter();
-
+  const userDetails = useAuthStore((state) => state.user);
   useEffect(() => {
     fetchCurrentUser();
   }, []);
   const fetchCurrentUser = async () => {
     try {
-      const response = await fetch("/api/current-user");
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
-        router.push("/signin");
+      if (!userDetails) {
+        router.replace("/signin");
+        return;
       }
+      setLoading(true);
+      setUser(userDetails);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching current user:", error);
-      router.push("/signin");
+      router.replace("/signin");
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.newPassword !== formData.confirmPassword) {
       toast.error("New passwords do not match");
       return;
@@ -134,7 +133,8 @@ export default function ChangePassword() {
       <div className="flex items-center space-x-4">
         <Avatar className="h-12 w-12">
           <AvatarFallback className="bg-indigo-100 text-indigo-600 text-lg font-bold">
-            {user.firstName?.[0]}{user.lastName?.[0]}
+            {user.firstName?.[0]}
+            {user.lastName?.[0]}
           </AvatarFallback>
         </Avatar>
         <div>
@@ -153,7 +153,7 @@ export default function ChangePassword() {
         <Card className="border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center">
-              {user.role === 'admin' ? (
+              {user.role === "admin" ? (
                 <>
                   <Shield className="h-5 w-5 mr-2 text-indigo-600" />
                   Administrator
@@ -169,22 +169,36 @@ export default function ChangePassword() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Full Name</Label>
+              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Full Name
+              </Label>
               <p className="text-sm font-medium text-gray-900 dark:text-white">
                 {user.firstName} {user.lastName}
               </p>
             </div>
             <div>
-              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</Label>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{user.email}</p>
+              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Email
+              </Label>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {user.email}
+              </p>
             </div>
             <div>
-              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Role</Label>
-              <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">{user.role}</p>
+              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Role
+              </Label>
+              <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                {user.role}
+              </p>
             </div>
             <div>
-              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Designation</Label>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{user.designation}</p>
+              <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Designation
+              </Label>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {user.designation}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -219,7 +233,9 @@ export default function ChangePassword() {
                       />
                       <button
                         type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        onClick={() =>
+                          setShowCurrentPassword(!showCurrentPassword)
+                        }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
                         {showCurrentPassword ? (
@@ -263,7 +279,9 @@ export default function ChangePassword() {
                   </div>
 
                   <div>
-                    <Label htmlFor="confirmPassword">Confirm New Password *</Label>
+                    <Label htmlFor="confirmPassword">
+                      Confirm New Password *
+                    </Label>
                     <div className="relative mt-1">
                       <Input
                         id="confirmPassword"
@@ -277,7 +295,9 @@ export default function ChangePassword() {
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
                         {showConfirmPassword ? (
@@ -296,11 +316,15 @@ export default function ChangePassword() {
                     Password Requirements:
                   </h4>
                   <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                    <li className={`flex items-center ${formData.newPassword.length >= 6 ? 'text-green-600' : ''}`}>
+                    <li
+                      className={`flex items-center ${formData.newPassword.length >= 6 ? "text-green-600" : ""}`}
+                    >
                       <span className="w-2 h-2 rounded-full bg-current mr-2"></span>
                       At least 6 characters long
                     </li>
-                    <li className={`flex items-center ${formData.newPassword === formData.confirmPassword && formData.confirmPassword ? 'text-green-600' : ''}`}>
+                    <li
+                      className={`flex items-center ${formData.newPassword === formData.confirmPassword && formData.confirmPassword ? "text-green-600" : ""}`}
+                    >
                       <span className="w-2 h-2 rounded-full bg-current mr-2"></span>
                       Passwords must match
                     </li>
@@ -322,7 +346,12 @@ export default function ChangePassword() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={updating || !formData.currentPassword || !formData.newPassword || !formData.confirmPassword}
+                    disabled={
+                      updating ||
+                      !formData.currentPassword ||
+                      !formData.newPassword ||
+                      !formData.confirmPassword
+                    }
                     className="bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
                     {updating ? (
