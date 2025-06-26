@@ -18,7 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   Users,
   UserPlus,
-  Settings,
   LogOut,
   Home,
   Menu,
@@ -60,7 +59,7 @@ const getPageTitle = (pathname: string | null): string => {
   if (pathname === "/dashboard/change-password") return "Change Password";
   if (pathname === "/dashboard/departments") return "Departments";
   if (pathname === "/dashboard/reports") return "Reports";
-  if (pathname === "/dashboard/admin-settings") return "Admin Settings";
+  // if (pathname === "/dashboard/admin-settings") return "Admin Settings";
 
   // Handle dynamic routes with IDs
   if (
@@ -364,7 +363,7 @@ export default function DashboardLayout({
                       <span>Change Password</span>
                     </Link>
                   </DropdownMenuItem>
-                  {user?.role === "admin" && (
+                  {/* {user?.role === "admin" && (
                     <DropdownMenuItem asChild>
                       <Link
                         href="/dashboard/admin-settings"
@@ -374,7 +373,7 @@ export default function DashboardLayout({
                         <span>Admin Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                  )}
+                  )} */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}

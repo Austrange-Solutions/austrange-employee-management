@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
         level_code,
         dateOfJoining,
         username,
-        workingHours
+        workingHours,
+        bloodGroup
     } = await request.json();
 
     if (!username || !firstName || !lastName || !email || !phone || !age || !designation || !password || !workingHours) {
@@ -60,7 +61,8 @@ export async function POST(request: NextRequest) {
             dateOfJoining: dateOfJoining || new Date(),
             status: "active",
             role: "employee",
-            workingHours: workingHours || "0"
+            workingHours: workingHours || "0",
+            bloodGroup: bloodGroup || "Not specified"
         });
 
         return NextResponse.json({

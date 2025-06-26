@@ -80,6 +80,7 @@ export default function AttendancePage() {
     longitude: number;
   } | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const userDetails = useAuthStore((state) => state.user);
   const updateUser = useAuthStore((state) => state.updateUser);
   // Update current time every second
   useEffect(() => {
@@ -89,7 +90,9 @@ export default function AttendancePage() {
     return () => clearInterval(timer);
   }, []); // Fetch current user and today's attendance
   useEffect(() => {
-    fetchCurrentUser();
+    if (userDetails) {
+      setUser(userDetails);
+    }
     getCurrentLocation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

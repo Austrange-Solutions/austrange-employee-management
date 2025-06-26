@@ -6,12 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -44,14 +39,9 @@ import {
 import Link from "next/link";
 import formatTime from "@/helpers/formatTime";
 import formatDuration from "@/helpers/formatDuration";
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
+import useAuthStore from "@/store/authSlice";
+import { TUser } from "@/models/user.model";
+import formatDate from "@/helpers/formatDate";
 
 interface AttendanceRecord {
   _id: string;
@@ -68,20 +58,14 @@ interface AttendanceRecord {
   endLatitude?: number;
   endLongitude?: number;
   workingHoursCompleted?: boolean;
-  status:
-    | "present"
-    | "absent"
-    | "on_leave"
-    | "on_break"
-    | "active"
-    | "inactive";
+  status: "present" | "absent" | "on_leave" | "on_break";
   createdAt: string;
   updatedAt: string;
 }
 
 export default function AttendanceHistoryPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<TUser | null>(null);
   const [attendanceRecords, setAttendanceRecords] = useState<
     AttendanceRecord[]
   >([]);
@@ -93,7 +77,7 @@ export default function AttendanceHistoryPage() {
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [monthFilter, setMonthFilter] = useState("");
-
+  const userDetails = useAuthStore((state) => state.user);
   useEffect(() => {
     fetchCurrentUser();
   }, []);
@@ -106,12 +90,8 @@ export default function AttendanceHistoryPage() {
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await fetch("/api/current-user");
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
-        router.push("/signin");
+      if (userDetails) {
+        setUser(userDetails);
       }
     } catch (error) {
       console.error("Error fetching current user:", error);
@@ -127,7 +107,7 @@ export default function AttendanceHistoryPage() {
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        userId: user._id,
+        userId: user._id as string,
         page: currentPage.toString(),
         limit: "10",
       });
@@ -160,15 +140,6 @@ export default function AttendanceHistoryPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
   };
 
   const calculateWorkingHours = (record: AttendanceRecord) => {

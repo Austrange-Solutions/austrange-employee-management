@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import EmployeeIdCard from "@/components/EmployeeIdCard";
 import useAuthStore from "@/store/authSlice";
 import { TUser } from "@/models/user.model";
+import formatDate from "@/helpers/formatDate";
 
 interface User {
   _id: string;
@@ -123,14 +124,6 @@ export default function UnifiedProfile() {
     } finally {
       setUpdating(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
   };
 
   if (loading) {

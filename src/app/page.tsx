@@ -28,8 +28,11 @@ export default function Home() {
           router.replace("/dashboard");
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
-        toast.error("Failed to fetch user data. Please try again.");
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Failed to fetch user data. Please try again.");
+        }
       }
     };
     fetchUser();

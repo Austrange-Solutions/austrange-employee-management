@@ -28,6 +28,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/authSlice";
 import { TUser } from "@/models/user.model";
+import formatDate from "@/helpers/formatDate";
 
 interface User {
   _id: string;
@@ -69,8 +70,12 @@ export default function UnifiedDashboard() {
   const userDetails = useAuthStore((state) => state.user);
   const updateUser = useAuthStore((state) => state.updateUser);
   useEffect(() => {
+    setLoading(true);
     const fetchUser = async () => {
       try {
+        if (userDetails) {
+          setUser(userDetails);
+        }
         if (!isAuthenticated) {
           const response = await fetch("/api/current-user");
           if (response.ok) {
@@ -86,9 +91,6 @@ export default function UnifiedDashboard() {
             }
           }
         }
-        if (userDetails) {
-          setUser(userDetails);
-        }
       } catch (error) {
         console.error("Error fetching current user:", error);
         router.replace("/signin");
@@ -98,11 +100,14 @@ export default function UnifiedDashboard() {
     };
 
     fetchUser();
-  }, [router]);
+  }, []);
+
   useEffect(() => {
+    setLoading(true);
     if (user?.role === "admin") {
       fetchDashboardStats();
     }
+    setLoading(false);
   }, [user]);
 
   const fetchDashboardStats = async () => {
@@ -152,14 +157,6 @@ export default function UnifiedDashboard() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   const calculateTenure = (joiningDate: string) => {
     if (!joiningDate) return "N/A";
     const start = new Date(joiningDate);
@@ -182,6 +179,18 @@ export default function UnifiedDashboard() {
   if (loading) {
     return (
       <div className="p-6">
+        {/* Show welcome header immediately even during loading */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div>
+            <h1 className="md:text-3xl text-2xl font-bold text-gray-900 dark:text-white">
+              Welcome back
+              {userDetails?.firstName ? `, ${userDetails.firstName}` : ""}!
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              Loading your dashboard...
+            </p>
+          </div>
+        </div>
         <div className="animate-pulse space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
@@ -214,8 +223,8 @@ export default function UnifiedDashboard() {
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome back, {user.firstName}!
+          <h1 className="md:text-3xl text-2xl font-bold text-gray-900 dark:text-white">
+            Welcome back, {userDetails?.firstName || user?.firstName}!
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
             {user.role === "admin"
@@ -224,7 +233,7 @@ export default function UnifiedDashboard() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-2">
-          {user.role === "admin" && (
+          {userDetails?.role === "admin" && (
             <Link href="/dashboard/employees/add">
               <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
                 <UserPlus className="h-4 w-4 mr-2" />
@@ -614,7 +623,7 @@ export default function UnifiedDashboard() {
                   <span className="text-sm">Attendance</span>
                 </Button>
               </Link>
-              <Link href="/dashboard/admin-settings">
+              {/* <Link href="/dashboard/admin-settings">
                 <Button
                   variant="outline"
                   className="w-full h-16 flex flex-col items-center justify-center space-y-2"
@@ -622,7 +631,7 @@ export default function UnifiedDashboard() {
                   <Settings className="h-5 w-5" />
                   <span className="text-sm">Admin Settings</span>
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

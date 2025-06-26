@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { TUser } from "@/models/user.model";
+import formatDate from "@/helpers/formatDate";
 
 interface EmployeeIdCardProps {
   user: TUser;
@@ -30,14 +31,6 @@ export default function EmployeeIdCard({
   const [isFlipped, setIsFlipped] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Not specified";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
   const handlePrint = () => {
     // Temporarily reset to front side for printing
     const wasFlipped = isFlipped;
@@ -317,7 +310,7 @@ export default function EmployeeIdCard({
                       <div class="info-content">
                         <p class="info-label">Joined</p>
                         <p class="info-value">${formatDate(
-                          user.dateOfJoining
+                          user.dateOfJoining as string
                         )}</p>
                       </div>
                     </div>
@@ -470,7 +463,7 @@ export default function EmployeeIdCard({
                   <div>
                     <p className="text-xs opacity-80">Joined</p>
                     <p className="font-semibold text-sm">
-                      {formatDate(user.dateOfJoining)}
+                      {formatDate(user.dateOfJoining as string)}
                     </p>
                   </div>
                 </div>

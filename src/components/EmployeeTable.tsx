@@ -32,6 +32,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import formatDate from "@/helpers/formatDate";
 
 interface EmployeeTableProps {
   fetchEmployees: () => Promise<void>;
@@ -117,13 +118,6 @@ function EmployeeTable({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
   const promoteToAdmin = async (employeeId: string) => {
     if (
       !confirm(

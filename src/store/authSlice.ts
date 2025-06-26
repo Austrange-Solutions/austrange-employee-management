@@ -4,6 +4,7 @@ import { create } from "zustand";
 interface AuthState {
     isAuthenticated: boolean;
     user: TUser | null;
+    // eslint-disable-next-line no-unused-vars
     updateUser?: (user: TUser) => void;
     logout?: () => void;
 }
