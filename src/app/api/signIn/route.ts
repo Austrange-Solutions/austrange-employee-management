@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const accessToken = jwt.sign({ _id: user._id, username: user.username, role: user.role }, process.env.TOKEN_SECRET || "default_secret_key", {
-        expiresIn: "1d" // Token will expire in 1 day
+        expiresIn: "7d" // Token will expire in 7 days
     });
 
     const response = NextResponse.json({
