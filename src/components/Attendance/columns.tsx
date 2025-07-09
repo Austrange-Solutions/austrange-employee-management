@@ -3,8 +3,36 @@
 import { Attendance } from "@/schema/attendanceSchema";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Calendar, MapPin, Timer } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, Calendar, MapPin, Timer, Edit } from "lucide-react";
 import formatDuration from "@/helpers/formatDuration";
+import Link from "next/link";
+import useAuthStore from "@/store/authSlice";
+
+// Actions cell component
+const ActionsCell = ({ attendance }: { attendance: Attendance }) => {
+  const userDetails = useAuthStore((state) => state.user);
+  
+  // Only show edit button for admin users
+  if (userDetails?.role !== "admin") {
+    return null;
+  }
+
+  return (
+    <div className="flex space-x-2">
+      <Link href={`/dashboard/attendance/edit/${attendance._id}`}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-2 text-xs"
+        >
+          <Edit className="h-3 w-3 mr-1" />
+          Edit
+        </Button>
+      </Link>
+    </div>
+  );
+};
 
 export const columns: ColumnDef<Attendance>[] = [
   {
@@ -169,9 +197,14 @@ export const columns: ColumnDef<Attendance>[] = [
 
       return (
         <div className="text-sm">
-          <div className="font-mono text-xs text-gray-600">
-            {lat.toFixed(4)},<br /> {lng.toFixed(4)}
-          </div>
+          <Link
+            href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline flex items-center space-x-1"
+          >
+            <MapPin className="h-4 w-4" /> View on Maps
+          </Link>
         </div>
       );
     },
@@ -192,11 +225,24 @@ export const columns: ColumnDef<Attendance>[] = [
 
       return (
         <div className="text-sm">
-          <div className="font-mono text-xs text-gray-600">
-            {lat.toFixed(4)},<br /> {lng.toFixed(4)}
-          </div>
+          <Link
+            href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline flex items-center space-x-1"
+          >
+            <MapPin className="h-4 w-4" /> View on Maps
+          </Link>
         </div>
       );
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const attendance = row.original;
+      return <ActionsCell attendance={attendance} />;
     },
   },
 ];

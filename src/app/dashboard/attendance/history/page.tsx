@@ -145,20 +145,10 @@ export default function AttendanceHistoryPage() {
   const calculateWorkingHours = (record: AttendanceRecord) => {
     if (!record.loginTime || !record.logoutTime) return "-";
 
-    const loginTime = new Date(
-      typeof record.loginTime === "number"
-        ? record.loginTime
-        : parseInt(record.loginTime)
+    const hoursWorked = formatDuration(
+      new Date(record.logoutTime).getTime() - new Date(record.loginTime).getTime()
     );
-    const logoutTime = new Date(
-      typeof record.logoutTime === "number"
-        ? record.logoutTime
-        : parseInt(record.logoutTime)
-    );
-    const workDuration =
-      logoutTime.getTime() - loginTime.getTime() - (record.breakDuration || 0);
-
-    return formatDuration(workDuration);
+    return hoursWorked;
   };
 
   const getStatusBadge = (status: string) => {
@@ -386,7 +376,8 @@ export default function AttendanceHistoryPage() {
                       <TableHead>Working Hours</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Completed</TableHead>
-                      <TableHead>Location</TableHead>
+                      <TableHead>Login Location</TableHead>
+                      <TableHead>Logout Location</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -440,7 +431,31 @@ export default function AttendanceHistoryPage() {
                           {record.startLatitude && record.startLongitude ? (
                             <div className="flex items-center text-sm text-gray-600">
                               <MapPin className="h-4 w-4 mr-1" />
-                              Available
+                              <Link
+                                href={`https://www.google.com/maps/search/?api=1&query=${record.startLatitude},${record.startLongitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                View on Maps
+                              </Link>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {record.endLatitude && record.endLongitude ? (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              <Link
+                                href={`https://www.google.com/maps/search/?api=1&query=${record.endLatitude},${record.endLongitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                View on Maps
+                              </Link>
                             </div>
                           ) : (
                             <span className="text-gray-400">-</span>
