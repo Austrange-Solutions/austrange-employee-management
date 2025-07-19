@@ -27,7 +27,6 @@ export async function PUT(request: NextRequest) {
             logoutTime,
             breakStartTime,
             breakEndTime,
-            breakDuration,
             status,
             workingHoursCompleted,
         } = await request.json();
@@ -63,10 +62,9 @@ export async function PUT(request: NextRequest) {
         if (logoutTime) updateData.logoutTime = new Date(logoutTime);
         if (breakStartTime) updateData.breakStartTime = new Date(breakStartTime);
         if (breakEndTime) updateData.breakEndTime = new Date(breakEndTime);
-        if (breakDuration !== undefined) updateData.breakDuration = breakDuration;
         if (status) updateData.status = status;
         if (workingHoursCompleted !== undefined) updateData.workingHoursCompleted = workingHoursCompleted;
-
+        updateData.breakDuration = new Date(breakEndTime).getTime() - new Date(breakStartTime).getTime();
         const updatedAttendance = await Attendance.findByIdAndUpdate(
             attendanceId,
             updateData,

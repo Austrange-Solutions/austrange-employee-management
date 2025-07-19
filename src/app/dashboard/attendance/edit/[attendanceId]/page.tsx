@@ -224,7 +224,10 @@ export default function EditAttendancePage() {
 
     const handleSubmit = async (data: AttendanceFormData) => {
         setSaving(true);
-
+        data.loginTime = data.loginTime ? new Date(data.loginTime).toISOString() : "";
+        data.logoutTime = data.logoutTime ? new Date(data.logoutTime).toISOString() : "";
+        data.breakStartTime = data.breakStartTime ? new Date(data.breakStartTime).toISOString() : "";
+        data.breakEndTime = data.breakEndTime ? new Date(data.breakEndTime).toISOString() : "";
         try {
             const response = await fetch("/api/admin/update-attendance", {
                 method: "PUT",
