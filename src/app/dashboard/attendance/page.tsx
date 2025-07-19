@@ -168,7 +168,7 @@ export default function AttendancePage() {
         body: JSON.stringify({
           userId: user._id,
           dateOfWorking: now.toISOString().split("T")[0],
-          dayOfWeek: now.toLocaleDateString("en-US", { weekday: "long" }),
+          dayOfWeek: now.toLocaleDateString("en-IN", { weekday: "long" }),
           loginTime: new Date(now.getTime()),
           startLatitude: currentLocation.latitude,
           startLongitude: currentLocation.longitude,
@@ -317,7 +317,7 @@ export default function AttendancePage() {
         body: JSON.stringify({
           userId: user._id,
           dateOfWorking: now.toISOString().split("T")[0],
-          dayOfWeek: now.toLocaleDateString("en-US", { weekday: "long" }),
+          dayOfWeek: now.toLocaleDateString("en-IN", { weekday: "long" }),
           loginTime: now.getTime(),
           startLatitude: currentLocation.latitude,
           startLongitude: currentLocation.longitude,
@@ -355,7 +355,7 @@ export default function AttendancePage() {
         body: JSON.stringify({
           userId: user._id,
           dateOfWorking: now.toISOString().split("T")[0],
-          dayOfWeek: now.toLocaleDateString("en-US", { weekday: "long" }),
+          dayOfWeek: now.toLocaleDateString("en-IN", { weekday: "long" }),
           loginTime: now.getTime(),
           startLatitude: currentLocation.latitude,
           startLongitude: currentLocation.longitude,
@@ -457,7 +457,7 @@ export default function AttendancePage() {
           </div>
           <div className="flex items-center text-sm text-gray-500">
             <Clock className="h-4 w-4 mr-1" />
-            {currentTime.toLocaleTimeString("en-US", { hour12: true })}
+            {currentTime.toLocaleTimeString("en-IN", { hour12: true })}
           </div>
         </div>
       </div>

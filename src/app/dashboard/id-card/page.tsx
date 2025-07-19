@@ -255,7 +255,7 @@ ${user.firstName} ${user.lastName}`;
                     Date of Joining:
                   </span>
                   <p className="text-gray-900">
-                    {new Date(user.dateOfJoining).toLocaleDateString("en-US", {
+                    {new Date(user.dateOfJoining).toLocaleDateString("en-IN", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
