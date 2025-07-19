@@ -8,11 +8,12 @@ import { Clock, Calendar, MapPin, Timer, Edit } from "lucide-react";
 import formatDuration from "@/helpers/formatDuration";
 import Link from "next/link";
 import useAuthStore from "@/store/authSlice";
+import formatTime from "@/helpers/formatTime";
 
 // Actions cell component
 const ActionsCell = ({ attendance }: { attendance: Attendance }) => {
   const userDetails = useAuthStore((state) => state.user);
-  
+
   // Only show edit button for admin users
   if (userDetails?.role !== "admin") {
     return null;
@@ -47,7 +48,7 @@ export const columns: ColumnDef<Attendance>[] = [
       const date = new Date(row.getValue("dateOfWorking"));
       return (
         <div className="font-medium">
-          {date.toLocaleDateString("en-US", {
+          {date.toLocaleDateString("en-IN", {
             weekday: "short",
             year: "numeric",
             month: "short",
@@ -71,7 +72,7 @@ export const columns: ColumnDef<Attendance>[] = [
 
       return (
         <div className="font-medium">
-          {new Date(loginTime as string).toLocaleTimeString("en-US", {
+          {new Date(loginTime as string).toLocaleTimeString("en-IN", {
             hour: "2-digit",
             minute: "2-digit",
           })}
@@ -90,13 +91,10 @@ export const columns: ColumnDef<Attendance>[] = [
     cell: ({ row }) => {
       const logoutTime = row.getValue("logoutTime");
       if (!logoutTime) return <span className="text-gray-400">-</span>;
-
+      console.log("Logout Time:", logoutTime);
       return (
         <div className="font-medium">
-          {new Date(logoutTime as string).toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatTime(logoutTime as string)}
         </div>
       );
     },

@@ -357,7 +357,7 @@ export default function EditAttendancePage() {
                         <div>
                             <Label className="text-sm font-medium text-gray-500">Date</Label>
                             <p className="text-sm font-medium">
-                                {new Date(attendance.dateOfWorking).toLocaleDateString("en-US", {
+                                {new Date(attendance.dateOfWorking).toLocaleDateString("en-IN", {
                                     weekday: "long",
                                     year: "numeric",
                                     month: "long",
