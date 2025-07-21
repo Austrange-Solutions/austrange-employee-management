@@ -9,6 +9,7 @@ export type TTask = {
     assignedTo: TUser[];
     assignedBy: TUser;
     status: "pending" | "in_progress" | "completed" | "on_hold";
+    deadLine?: Date;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -40,6 +41,10 @@ const taskSchema = new Schema<TTask>({
         type: String,
         enum: ["pending", "in_progress", "completed", "on_hold"],
         default: "pending"
+    },
+    deadLine: {
+        type: Number,
+        default: 0,
     }
 }, { timestamps: true })
 
