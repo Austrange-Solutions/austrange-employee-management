@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { Schema } from "mongoose";
 import { TUser } from "./user.model";
-
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 export type TTask = {
     _id?: string;
     title: string;
@@ -43,10 +44,14 @@ const taskSchema = new Schema<TTask>({
         default: "pending"
     },
     deadLine: {
-        type: Number,
-        default: 0,
+        type: Date,
     }
 }, { timestamps: true })
+taskSchema.plugin(aggregatePaginate);
 
-const Task = mongoose.models.Task || mongoose.model<TTask>("Task", taskSchema);
+type TaskModel = mongoose.Model<TTask> & {
+    aggregatePaginate: any;
+}
+
+const Task = mongoose.models.Task as TaskModel || mongoose.model<TTask>("Task", taskSchema) as TaskModel;
 export default Task;
