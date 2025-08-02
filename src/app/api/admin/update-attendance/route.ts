@@ -64,7 +64,15 @@ export async function PUT(request: NextRequest) {
         if (breakEndTime) updateData.breakEndTime = new Date(breakEndTime);
         if (status) updateData.status = status;
         if (workingHoursCompleted !== undefined) updateData.workingHoursCompleted = workingHoursCompleted;
-        updateData.breakDuration = new Date(breakEndTime).getTime() - new Date(breakStartTime).getTime();
+        if (breakEndTime && breakStartTime) {
+            if (new Date(breakEndTime) < new Date(breakStartTime)) {
+                return NextResponse.json(
+                    { error: "Invalid break times" },
+                    { status: 400 }
+                );
+            }
+            updateData.breakDuration = parseInt((new Date(breakEndTime).getTime() - new Date(breakStartTime).getTime()).toString());
+        }
         const updatedAttendance = await Attendance.findByIdAndUpdate(
             attendanceId,
             updateData,
