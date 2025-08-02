@@ -415,19 +415,17 @@ function SidebarContent({
               href={item.href}
               className={`
                 group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors
-                ${
-                  isActive
-                    ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                ${isActive
+                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                 }
               `}
             >
               <item.icon
-                className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                  isActive
-                    ? "text-indigo-500"
-                    : "text-gray-400 group-hover:text-gray-500"
-                }`}
+                className={`mr-3 h-5 w-5 flex-shrink-0 ${isActive
+                  ? "text-indigo-500"
+                  : "text-gray-400 group-hover:text-gray-500"
+                  }`}
               />
               {item.name}
             </Link>

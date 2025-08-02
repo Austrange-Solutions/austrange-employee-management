@@ -1,8 +1,7 @@
 import Task from "@/models/task.model";
-import { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextApiRequest, segmentData: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, segmentData: { params: Promise<{ id: string }> }) {
     const { id } = await segmentData.params;
 
     try {
