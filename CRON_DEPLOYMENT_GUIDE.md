@@ -4,7 +4,7 @@
 This guide covers the deployment and configuration of the automated employee logout cron job system for the Austrange Employee Management System.
 
 ## Prerequisites
-- Vercel account with Pro plan (required for cron jobs)
+- Vercel account with Pro plan (required for cron jobs more than 1 minute)
 - Project deployed to Vercel
 - MongoDB database accessible from Vercel
 - Admin access to the application
