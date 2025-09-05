@@ -1,36 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/db/dbConnect";
 import Attendance from "@/models/attendance.model";
 import User from "@/models/user.model";
 
-export async function GET(request: NextRequest) {
+export async function POST() {
     const startTime = Date.now();
-    
-    try {
-        // Verify the request is from Vercel Cron
-        const authHeader = request.headers.get('authorization');
-        if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-            console.error('Unauthorized cron job attempt:', {
-                timestamp: new Date().toISOString(),
-                authHeader: authHeader ? 'present' : 'missing'
-            });
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
 
+    try {
         await dbConnect();
 
         // Get current date in IST (Indian Standard Time)
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
         const istDate = new Date(now.getTime() + istOffset);
-        
+
         // Get today's date in YYYY-MM-DD format
         const today = istDate.toISOString().split('T')[0];
-        
+
         // Set logout time to 11:59 PM IST
         const logoutTime = new Date(istDate);
         logoutTime.setHours(23, 59, 0, 0); // 11:59 PM
-        
+
         console.log(`Starting auto-logout cron job for date: ${today} at ${istDate.toISOString()}`);
 
         // Find all attendance records for today that are present but haven't logged out
@@ -64,7 +54,7 @@ export async function GET(request: NextRequest) {
                     workingHours?: string;
                     status: string;
                 };
-                
+
                 if (!user) {
                     console.error(`No user found for attendance ID: ${attendance._id}`);
                     errorCount++;
@@ -72,11 +62,11 @@ export async function GET(request: NextRequest) {
                 }
 
                 const employeeName = `${user.firstName} ${user.lastName}`;
-                
+
                 // Calculate working hours
                 const loginTime = new Date(attendance.loginTime);
                 const workingHoursMs = logoutTime.getTime() - loginTime.getTime();
-                
+
                 // Get user's expected working hours (default to 8 hours if not set)
                 let userWorkingHours = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
                 if (user.workingHours && user.workingHours !== '00:00') {
@@ -88,18 +78,18 @@ export async function GET(request: NextRequest) {
                         // Keep default 8 hours
                     }
                 }
-                
+
                 // Determine if working hours are completed
                 const workingHoursCompleted = workingHoursMs >= userWorkingHours;
-                
+
                 // Calculate break duration if breaks exist
                 const totalBreakDuration = attendance.breakDuration || 0;
-                
+
                 // Update attendance record with retry mechanism
                 let retryCount = 0;
                 const maxRetries = 3;
                 let updateSuccess = false;
-                
+
                 while (retryCount < maxRetries && !updateSuccess) {
                     try {
                         await Attendance.findByIdAndUpdate(attendance._id, {
@@ -110,19 +100,19 @@ export async function GET(request: NextRequest) {
                             breakDuration: totalBreakDuration,
                             updatedAt: new Date()
                         }, { new: true });
-                        
+
                         updateSuccess = true;
                     } catch (updateError) {
                         retryCount++;
                         console.warn(`Retry ${retryCount}/${maxRetries} for attendance update - ${employeeName}:`, updateError);
-                        
+
                         if (retryCount < maxRetries) {
                             // Wait before retry (exponential backoff)
                             await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
                         }
                     }
                 }
-                
+
                 if (!updateSuccess) {
                     throw new Error(`Failed to update attendance after ${maxRetries} retries`);
                 }
@@ -142,16 +132,16 @@ export async function GET(request: NextRequest) {
 
                 processedCount++;
                 processedEmployees.push(employeeName);
-                
+
                 console.log(`✅ Auto-logout processed for ${employeeName} (${user.email}) - Working hours completed: ${workingHoursCompleted}`);
-                
+
             } catch (error) {
                 const user = attendance.user as { firstName?: string; lastName?: string };
                 const employeeName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Unknown';
                 const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-                
+
                 console.error(`❌ Error processing auto-logout for ${employeeName} (ID: ${attendance._id}):`, error);
-                
+
                 failedEmployees.push({
                     name: employeeName,
                     error: errorMessage
@@ -173,7 +163,7 @@ export async function GET(request: NextRequest) {
             errors: errorCount,
             processedEmployees: processedEmployees,
             failedEmployees: failedEmployees,
-            message: errorCount === 0 
+            message: errorCount === 0
                 ? `Auto-logout completed successfully: ${processedCount} employees logged out automatically`
                 : `Auto-logout completed with ${errorCount} errors: ${processedCount} employees logged out, ${errorCount} failed`
         };
@@ -195,14 +185,9 @@ export async function GET(request: NextRequest) {
             executionTimeMs: executionTime,
             stack: error instanceof Error ? error.stack : undefined
         };
-        
+
         console.error('💥 Auto-logout cron job critical failure:', errorDetails);
-        
+
         return NextResponse.json(errorDetails, { status: 500 });
     }
-}
-
-// Also handle POST requests for testing
-export async function POST(request: NextRequest) {
-    return GET(request);
 }
