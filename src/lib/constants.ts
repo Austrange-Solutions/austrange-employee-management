@@ -2,6 +2,7 @@
     { name: "Chief Suite", code: "C" },
     { name: "Human Resources", code: "HR" },
     { name: "Engineering", code: "ENG" },
+    { name: "Cyber Security", code: "CSY" },
     { name: "Marketing", code: "MKT" },
     { name: "Finance", code: "FIN" },
     { name: "Product Design", code: "PD" },
