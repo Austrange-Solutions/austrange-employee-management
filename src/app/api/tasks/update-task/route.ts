@@ -1,10 +1,14 @@
 import Task from "@/models/task.model";
 import { NextRequest, NextResponse } from "next/server";
-type Params = Promise<{ id: string }>
-export async function PATCH(request: NextRequest, segmentData: { params: Params }) {
-    const { id } = await segmentData.params;
-    const { title, description, resourcesUrl, assignedTo, assignedBy, status, deadLine } = await request.json();
+
+export async function PATCH(request: NextRequest) {
     try {
+        const { id, title, description, resourcesUrl, assignedTo, assignedBy, status, deadLine } = await request.json();
+        
+        if (!id) {
+            return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
+        }
+        
         if (!title || !description || !assignedTo || !assignedBy) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }

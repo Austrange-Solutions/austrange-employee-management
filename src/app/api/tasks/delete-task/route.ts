@@ -1,10 +1,14 @@
 import Task from "@/models/task.model";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(request: NextRequest, segmentData: { params: Promise<{ id: string }> }) {
-    const { id } = await segmentData.params;
-
+export async function DELETE(request: NextRequest) {
     try {
+        const { id } = await request.json();
+
+        if (!id) {
+            return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
+        }
+
         const task = await Task.findByIdAndDelete(id);
         if (!task) {
             return NextResponse.json({ error: "Task not found" }, { status: 404 });
